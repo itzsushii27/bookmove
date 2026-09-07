@@ -2,992 +2,158 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Chess Opening Trainer</title>
-
 <style>
-    * {
-        box-sizing: border-box;
-    }
-
-    :root {
-        --bg: #111315;
-        --panel: #1b1e21;
-        --panel-2: #22262a;
-        --border: #34393e;
-        --text: #f2f2f2;
-        --muted: #a6abb0;
-        --muted-2: #777d83;
-        --button: #292e33;
-        --button-hover: #353b41;
-        --accent: #d8d8d8;
-        --good: #55c878;
-        --bad: #ef6262;
-
-        --board-light: #f0d9b5;
-        --board-dark: #b58863;
-    }
-
-    body {
-        margin: 0;
-        font-family: Arial, sans-serif;
-        background: var(--bg);
-        color: var(--text);
-    }
-
-    button {
-        font: inherit;
-    }
-
-    header {
-        background: #090a0b;
-        color: white;
-        padding: 18px 24px 0;
-        border-bottom: 1px solid var(--border);
-    }
-
-    header h1 {
-        max-width: 1250px;
-        margin: 0 auto 16px;
-        font-size: 24px;
-    }
-
-    .tabs {
-        display: flex;
-        gap: 6px;
-        max-width: 1250px;
-        margin: auto;
-    }
-
-    .tab {
-        border: 0;
-        background: transparent;
-        color: #777;
-        padding: 12px 20px;
-        cursor: pointer;
-        border-bottom: 3px solid transparent;
-    }
-
-    .tab:hover {
-        color: #bbb;
-    }
-
-    .tab.active {
-        color: white;
-        border-bottom-color: white;
-    }
-
-    main {
-        max-width: 1250px;
-        margin: auto;
-        padding: 28px 20px 50px;
-    }
-
-    .page {
-        display: none;
-    }
-
-    .page.active {
-        display: block;
-    }
-
-    .page-header {
-        margin-bottom: 24px;
-    }
-
-    .page-header h2 {
-        margin: 0 0 7px;
-        font-size: 28px;
-    }
-
-    .page-header p {
-        margin: 0;
-        color: var(--muted);
-    }
-
-    /*
-       The sidebar is intentionally narrower than the old version.
-       The extra width goes to the actual lesson.
-    */
-    .learn-layout {
-        display: grid;
-        grid-template-columns: 230px minmax(0, 1fr);
-        gap: 20px;
-        align-items: start;
-    }
-
-    .panel {
-        background: var(--panel);
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        padding: 18px;
-    }
-
-    .panel h3 {
-        margin: 0 0 14px;
-    }
-
-    .opening-list {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .opening {
-        width: 100%;
-        text-align: left;
-        border: 1px solid var(--border);
-        background: var(--panel-2);
-        color: var(--text);
-        border-radius: 7px;
-        padding: 12px;
-        cursor: pointer;
-    }
-
-    .opening:hover,
-    .opening.selected {
-        background: var(--button-hover);
-        border-color: #666;
-    }
-
-    .opening:disabled {
-        cursor: default;
-        opacity: .55;
-    }
-
-    .opening-name {
-        display: block;
-        font-weight: bold;
-        margin-bottom: 4px;
-    }
-
-    .opening-meta {
-        color: var(--muted);
-        font-size: 13px;
-    }
-
-    .learned-badge {
-        display: inline-block;
-        margin-top: 7px;
-        padding: 3px 7px;
-        border-radius: 999px;
-        background: #30353a;
-        color: #ccc;
-        font-size: 11px;
-        font-weight: bold;
-    }
-
-    .lesson-top {
-        display: flex;
-        justify-content: space-between;
-        gap: 15px;
-        margin-bottom: 18px;
-    }
-
-    .lesson-top h3 {
-        margin: 0 0 6px;
-        font-size: 24px;
-    }
-
-    .difficulty {
-        border: 1px solid var(--border);
-        border-radius: 999px;
-        padding: 4px 9px;
-        font-size: 12px;
-        color: var(--muted);
-        height: fit-content;
-        white-space: nowrap;
-    }
-
-    /*
-       IMPORTANT:
-       The board itself is intentionally fixed at 520x520,
-       matching the old file.
-
-       The lesson content gets the remaining horizontal space.
-    */
-    .board-area {
-        display: grid;
-        grid-template-columns: 520px minmax(400px, 1fr);
-        gap: 28px;
-        align-items: start;
-    }
-
-    .board-wrapper {
-        width: 520px;
-    }
-
-    .board {
-        width: 520px;
-        height: 520px;
-        display: grid;
-        grid-template-columns: repeat(8, 65px);
-        grid-template-rows: repeat(8, 65px);
-        border: 2px solid #080808;
-        overflow: hidden;
-    }
-
-    .square {
-        width: 65px;
-        height: 65px;
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        user-select: none;
-    }
-
-    .square.light {
-        background: var(--board-light);
-    }
-
-    .square.dark {
-        background: var(--board-dark);
-    }
-
-    .square.selected {
-        outline: 4px solid #555;
-        outline-offset: -4px;
-    }
-
-    /*
-       ORIGINAL PIECE DIMENSIONS / ARTWORK
-    */
-    .piece {
-        width: 84%;
-        height: 84%;
-        display: block;
-        pointer-events: none;
-        user-select: none;
-    }
-
-    .lesson-content {
-        min-height: 330px;
-    }
-
-    .lesson-content h4 {
-        margin: 0 0 10px;
-        font-size: 18px;
-    }
-
-    .lesson-text {
-        line-height: 1.55;
-        color: #d1d4d7;
-        margin-bottom: 18px;
-    }
-
-    .move-prompt {
-        background: var(--panel-2);
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        padding: 14px;
-        margin-bottom: 14px;
-        font-weight: bold;
-    }
-
-    .feedback {
-        min-height: 42px;
-        margin-bottom: 12px;
-        font-size: 14px;
-        line-height: 1.45;
-    }
-
-    .feedback.correct {
-        color: var(--good);
-    }
-
-    .feedback.wrong {
-        color: var(--bad);
-    }
-
-    .controls {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-    }
-
-    .primary,
-    .secondary,
-    .variation-button {
-        border-radius: 7px;
-        padding: 10px 15px;
-        cursor: pointer;
-    }
-
-    .primary {
-        border: 0;
-        background: #eee;
-        color: #111;
-    }
-
-    .primary:hover {
-        background: #fff;
-    }
-
-    .secondary {
-        border: 1px solid var(--border);
-        background: var(--button);
-        color: var(--text);
-    }
-
-    .secondary:hover {
-        background: var(--button-hover);
-    }
-
-    .variation-list {
-        display: grid;
-        gap: 9px;
-        margin-top: 16px;
-    }
-
-    .variation-button {
-        border: 1px solid var(--border);
-        background: var(--panel-2);
-        color: var(--text);
-        text-align: left;
-    }
-
-    .variation-button:hover,
-    .variation-button.selected {
-        background: var(--button-hover);
-        border-color: #777;
-    }
-
-    .variation-button strong {
-        display: block;
-        margin-bottom: 3px;
-    }
-
-    .variation-button span {
-        color: var(--muted);
-        font-size: 12px;
-    }
-
-    .progress {
-        width: 520px;
-        height: 6px;
-        background: #303438;
-        border-radius: 999px;
-        overflow: hidden;
-        margin-top: 20px;
-    }
-
-    .progress-bar {
-        height: 100%;
-        width: 0%;
-        background: #aaa;
-        transition: width .25s ease;
-    }
-
-    .summary {
-        background: var(--panel-2);
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        padding: 14px;
-        margin-top: 15px;
-        line-height: 1.55;
-    }
-
-    .hidden {
-        display: none !important;
-    }
-
-    .placeholder {
-        background: var(--panel);
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        padding: 30px;
-        color: var(--muted);
-    }
-
-    .repertoire-card {
-        background: var(--panel);
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        padding: 18px;
-        margin-bottom: 12px;
-    }
-
-    .repertoire-card h3 {
-        margin: 0 0 7px;
-    }
-
-    .repertoire-card p {
-        color: var(--muted);
-        margin: 0 0 14px;
-    }
-
-    @media (max-width: 1050px) {
-        .board-area {
-            grid-template-columns: 520px 1fr;
-        }
-
-        .lesson-content {
-            min-width: 0;
-        }
-    }
-
-    @media (max-width: 850px) {
-        .learn-layout {
-            grid-template-columns: 1fr;
-        }
-
-        .board-area {
-            grid-template-columns: 1fr;
-        }
-
-        .board-wrapper {
-            width: 520px;
-            max-width: 100%;
-            overflow-x: auto;
-        }
-
-        .lesson-content {
-            min-width: 0;
-        }
-    }
-
-    @media (max-width: 600px) {
-        main {
-            padding-left: 12px;
-            padding-right: 12px;
-        }
-
-        header {
-            padding-left: 12px;
-            padding-right: 12px;
-        }
-
-        .tabs {
-            overflow-x: auto;
-        }
-
-        .board-wrapper {
-            width: 100%;
-        }
-    }
+*{box-sizing:border-box}
+:root{--bg:#111315;--panel:#1b1e21;--panel-2:#22262a;--border:#34393e;--text:#f2f2f2;--muted:#a6abb0;--muted-2:#777d83;--button:#292e33;--button-hover:#353b41;--accent:#d8d8d8;--good:#55c878;--bad:#ef6262;--board-light:#f0d9b5;--board-dark:#b58863}
+body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--text)}
+button{font:inherit}
+header{background:#090a0b;color:white;padding:18px 24px 0;border-bottom:1px solid var(--border)}
+header h1{max-width:1250px;margin:0 auto 16px;font-size:24px}
+.tabs{display:flex;gap:6px;max-width:1250px;margin:auto}
+.tab{border:0;background:transparent;color:#777;padding:12px 20px;cursor:pointer;border-bottom:3px solid transparent}
+.tab:hover{color:#bbb}.tab.active{color:white;border-bottom-color:white}
+main{max-width:1250px;margin:auto;padding:28px 20px 50px}
+.page{display:none}.page.active{display:block}
+.page-header{margin-bottom:24px}.page-header h2{margin:0 0 7px;font-size:28px}.page-header p{margin:0;color:var(--muted)}
+.learn-layout{display:grid;grid-template-columns:230px minmax(0,1fr);gap:20px;align-items:start}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:18px}
+.panel h3{margin:0 0 14px}
+.opening-list{display:flex;flex-direction:column;gap:8px}
+.opening{width:100%;text-align:left;border:1px solid var(--border);background:var(--panel-2);color:var(--text);border-radius:7px;padding:12px;cursor:pointer}
+.opening:hover,.opening.selected{background:var(--button-hover);border-color:#666}.opening:disabled{cursor:default;opacity:.55}
+.opening-name{display:block;font-weight:bold;margin-bottom:4px}.opening-meta{color:var(--muted);font-size:13px}
+.learned-badge{display:inline-block;margin-top:7px;padding:3px 7px;border-radius:999px;background:#30353a;color:#ccc;font-size:11px;font-weight:bold}
+.lesson-top{display:flex;justify-content:space-between;gap:15px;margin-bottom:18px}.lesson-top h3{margin:0 0 6px;font-size:24px}
+.difficulty{border:1px solid var(--border);border-radius:999px;padding:4px 9px;font-size:12px;color:var(--muted);height:fit-content;white-space:nowrap}
+.board-area{display:grid;grid-template-columns:520px minmax(400px,1fr);gap:28px;align-items:start}
+.board-wrapper{width:520px}
+.board{width:520px;height:520px;display:grid;grid-template-columns:repeat(8,65px);grid-template-rows:repeat(8,65px);border:2px solid #080808;overflow:hidden}
+.square{width:65px;height:65px;position:relative;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none}
+.square.light{background:var(--board-light)}.square.dark{background:var(--board-dark)}
+.square.selected{outline:4px solid #555;outline-offset:-4px}
+.piece{width:84%;height:84%;display:block;pointer-events:none;user-select:none}
+.lesson-content{min-height:330px}.lesson-content h4{margin:0 0 10px;font-size:18px}
+.lesson-text{line-height:1.55;color:#d1d4d7;margin-bottom:18px}
+.move-prompt{background:var(--panel-2);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:14px;font-weight:bold}
+.feedback{min-height:42px;margin-bottom:12px;font-size:14px;line-height:1.45}.feedback.correct{color:var(--good)}.feedback.wrong{color:var(--bad)}
+.controls{display:flex;flex-wrap:wrap;gap:8px}
+.primary,.secondary,.variation-button{border-radius:7px;padding:10px 15px;cursor:pointer}
+.primary{border:0;background:#eee;color:#111}.primary:hover{background:#fff}
+.secondary{border:1px solid var(--border);background:var(--button);color:var(--text)}.secondary:hover{background:var(--button-hover)}
+.variation-list{display:grid;gap:9px;margin-top:16px}.variation-button{border:1px solid var(--border);background:var(--panel-2);color:var(--text);text-align:left}
+.variation-button:hover,.variation-button.selected{background:var(--button-hover);border-color:#777}
+.variation-button strong{display:block;margin-bottom:3px}.variation-button span{color:var(--muted);font-size:12px}
+.progress{width:520px;height:6px;background:#303438;border-radius:999px;overflow:hidden;margin-top:20px}.progress-bar{height:100%;width:0%;background:#aaa;transition:width .25s ease}
+.summary{background:var(--panel-2);border:1px solid var(--border);border-radius:8px;padding:14px;margin-top:15px;line-height:1.55}
+.hidden{display:none!important}.placeholder{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:30px;color:var(--muted)}
+.repertoire-card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:12px}.repertoire-card h3{margin:0 0 7px}.repertoire-card p{color:var(--muted);margin:0 0 14px}
+@media(max-width:1050px){.board-area{grid-template-columns:520px 1fr}.lesson-content{min-width:0}}
+@media(max-width:850px){.learn-layout{grid-template-columns:1fr}.board-area{grid-template-columns:1fr}.board-wrapper{width:520px;max-width:100%;overflow-x:auto}.lesson-content{min-width:0}}
+@media(max-width:600px){main{padding-left:12px;padding-right:12px}header{padding-left:12px;padding-right:12px}.tabs{overflow-x:auto}.board-wrapper{width:100%}}
 </style>
 </head>
-
 <body>
 
 <header>
-    <h1>Chess Opening Trainer</h1>
-
-    <nav class="tabs">
-        <button class="tab" data-page="practice">Practice</button>
-        <button class="tab active" data-page="learn">Learn</button>
-        <button class="tab" data-page="repertoire">Repertoire</button>
-    </nav>
+<h1>Chess Opening Trainer</h1>
+<nav class="tabs">
+<button class="tab" data-page="practice">Practice</button>
+<button class="tab active" data-page="learn">Learn</button>
+<button class="tab" data-page="repertoire">Repertoire</button>
+</nav>
 </header>
-
 
 <main>
 
-    <!-- =====================================================
-         PRACTICE
-    ====================================================== -->
+<section id="practice" class="page">
+<div class="page-header"><h2>Practice</h2><p>Practice openings against practical, rating-based responses.</p></div>
+<div class="placeholder">Practice mode will be built after Learn.</div>
+</section>
 
-    <section id="practice" class="page">
+<section id="learn" class="page active">
+<div class="page-header"><h2>Learn</h2><p>Learn openings through guided play, explanations, variations, and tactics.</p></div>
+<div class="learn-layout">
 
-        <div class="page-header">
-            <h2>Practice</h2>
-            <p>Practice openings against practical, rating-based responses.</p>
-        </div>
+<aside class="panel">
+<h3>Opening Library</h3>
+<div id="openingList" class="opening-list"></div>
+</aside>
 
-        <div class="placeholder">
-            Practice mode will be built after Learn.
-        </div>
+<section class="panel">
+<div id="lesson">
 
-    </section>
+<div class="lesson-top">
+<div><h3 id="openingTitle"></h3><div id="openingDescription" class="opening-meta"></div></div>
+<span id="difficulty" class="difficulty"></span>
+</div>
 
+<div class="board-area">
+<div class="board-wrapper">
+<div id="board" class="board"></div>
+<div class="progress"><div id="progressBar" class="progress-bar"></div></div>
+</div>
 
-    <!-- =====================================================
-         LEARN
-    ====================================================== -->
+<div class="lesson-content">
+<h4 id="lessonTitle"></h4>
+<div id="lessonText" class="lesson-text"></div>
+<div id="movePrompt" class="move-prompt"></div>
+<div id="feedback" class="feedback"></div>
+<div id="variationList" class="variation-list hidden"></div>
+<div class="controls">
+<button id="hintButton" class="secondary">Hint</button>
+<button id="explainButton" class="secondary">Explain Further</button>
+</div>
+</div>
+</div>
 
-    <section id="learn" class="page active">
+</div>
+</section>
 
-        <div class="page-header">
-            <h2>Learn</h2>
-            <p>Learn openings through guided play, explanations, variations, and tactics.</p>
-        </div>
+</div>
+</section>
 
-        <div class="learn-layout">
-
-            <aside class="panel">
-
-                <h3>Opening Library</h3>
-
-                <div id="openingList" class="opening-list"></div>
-
-            </aside>
-
-
-            <section class="panel">
-
-                <div id="lesson">
-
-                    <div class="lesson-top">
-
-                        <div>
-                            <h3 id="openingTitle"></h3>
-
-                            <div
-                                id="openingDescription"
-                                class="opening-meta"
-                            ></div>
-                        </div>
-
-                        <span
-                            id="difficulty"
-                            class="difficulty"
-                        ></span>
-
-                    </div>
-
-
-                    <div class="board-area">
-
-                        <div class="board-wrapper">
-
-                            <div id="board" class="board"></div>
-
-                            <div class="progress">
-                                <div
-                                    id="progressBar"
-                                    class="progress-bar"
-                                ></div>
-                            </div>
-
-                        </div>
-
-
-                        <div class="lesson-content">
-
-                            <h4 id="lessonTitle"></h4>
-
-                            <div
-                                id="lessonText"
-                                class="lesson-text"
-                            ></div>
-
-                            <div
-                                id="movePrompt"
-                                class="move-prompt"
-                            ></div>
-
-                            <div
-                                id="feedback"
-                                class="feedback"
-                            ></div>
-
-                            <div
-                                id="variationList"
-                                class="variation-list hidden"
-                            ></div>
-
-                            <div class="controls">
-
-                                <button
-                                    id="hintButton"
-                                    class="secondary"
-                                >
-                                    Hint
-                                </button>
-
-                                <button
-                                    id="explainButton"
-                                    class="secondary"
-                                >
-                                    Explain Further
-                                </button>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </section>
-
-        </div>
-
-    </section>
-
-
-    <!-- =====================================================
-         REPERTOIRE
-    ====================================================== -->
-
-    <section id="repertoire" class="page">
-
-        <div class="page-header">
-
-            <h2>Repertoire</h2>
-
-            <p>
-                Your learned openings and quick refreshers.
-            </p>
-
-        </div>
-
-        <div id="repertoireContent"></div>
-
-    </section>
+<section id="repertoire" class="page">
+<div class="page-header"><h2>Repertoire</h2><p>Your learned openings and quick refreshers.</p></div>
+<div id="repertoireContent"></div>
+</section>
 
 </main>
-
 
 <script>
 
 /* =========================================================
-   TAB SYSTEM
+   TABS
 ========================================================= */
 
-const tabs = document.querySelectorAll(".tab");
-const pages = document.querySelectorAll(".page");
-
-tabs.forEach(tab => {
-
-    tab.addEventListener("click", () => {
-
-        const target = tab.dataset.page;
-
-        tabs.forEach(t =>
-            t.classList.remove("active")
-        );
-
-        pages.forEach(p =>
-            p.classList.remove("active")
-        );
-
-        tab.classList.add("active");
-
-        document
-            .getElementById(target)
-            .classList.add("active");
-
-        if (target === "repertoire") {
-            updateRepertoire();
-        }
-    });
-
-});
+const tabs=document.querySelectorAll(".tab"),pages=document.querySelectorAll(".page");
+tabs.forEach(tab=>{tab.addEventListener("click",()=>{const target=tab.dataset.page;tabs.forEach(t=>t.classList.remove("active"));pages.forEach(p=>p.classList.remove("active"));tab.classList.add("active");document.getElementById(target).classList.add("active");if(target==="repertoire")updateRepertoire()})});
 
 
 /* =========================================================
    PIECE ART
-
-   THIS IS THE ORIGINAL PIECE ART FROM YOUR OLD FILE.
-
-   Do not change this section when adding openings.
+   DO NOT CHANGE THIS SECTION WHEN ADDING OPENINGS.
 ========================================================= */
 
-const pieceSVG = {
+const pieceSVG={
+wP:`<svg class="piece" viewBox="0 0 100 100"><g fill="#fff" stroke="#222" stroke-width="3" stroke-linejoin="round"><circle cx="50" cy="27" r="13"/><path d="M38 43 C40 38 60 38 62 43 L68 65 L76 79 L24 79 L32 65 Z"/><path d="M21 82 L79 82 L83 91 L17 91 Z"/></g></svg>`,
+bP:`<svg class="piece" viewBox="0 0 100 100"><g fill="#222" stroke="#eee" stroke-width="3" stroke-linejoin="round"><circle cx="50" cy="27" r="13"/><path d="M38 43 C40 38 60 38 62 43 L68 65 L76 79 L24 79 L32 65 Z"/><path d="M21 82 L79 82 L83 91 L17 91 Z"/></g></svg>`,
 
-    wP: `
-        <svg class="piece" viewBox="0 0 100 100">
-            <g fill="#fff" stroke="#222" stroke-width="3"
-               stroke-linejoin="round">
-                <circle cx="50" cy="27" r="13"/>
-                <path d="M38 43 C40 38 60 38 62 43
-                         L68 65 L76 79 L24 79 L32 65 Z"/>
-                <path d="M21 82 L79 82 L83 91 L17 91 Z"/>
-            </g>
-        </svg>
-    `,
+wN:`<svg class="piece" viewBox="0 0 100 100"><g fill="#fff" stroke="#222" stroke-width="3" stroke-linejoin="round"><path d="M22 82 L29 68 L29 53 C29 43 34 32 43 25 L39 15 L54 20 L64 14 L69 23 L84 28 L78 38 L64 40 C69 48 71 56 69 65 L79 82 Z"/><path d="M17 85 L82 85 L85 92 L14 92 Z"/></g><circle cx="69" cy="29" r="3" fill="#222"/></svg>`,
+bN:`<svg class="piece" viewBox="0 0 100 100"><g fill="#222" stroke="#eee" stroke-width="3" stroke-linejoin="round"><path d="M22 82 L29 68 L29 53 C29 43 34 32 43 25 L39 15 L54 20 L64 14 L69 23 L84 28 L78 38 L64 40 C69 48 71 56 69 65 L79 82 Z"/><path d="M17 85 L82 85 L85 92 L14 92 Z"/></g><circle cx="69" cy="29" r="3" fill="#eee"/></svg>`,
 
-    bP: `
-        <svg class="piece" viewBox="0 0 100 100">
-            <g fill="#222" stroke="#eee" stroke-width="3"
-               stroke-linejoin="round">
-                <circle cx="50" cy="27" r="13"/>
-                <path d="M38 43 C40 38 60 38 62 43
-                         L68 65 L76 79 L24 79 L32 65 Z"/>
-                <path d="M21 82 L79 82 L83 91 L17 91 Z"/>
-            </g>
-        </svg>
-    `,
+wB:`<svg class="piece" viewBox="0 0 100 100"><g fill="#fff" stroke="#222" stroke-width="3" stroke-linejoin="round"><path d="M50 12 L60 24 L56 38 C64 48 69 59 67 68 L76 82 L24 82 L33 68 C31 59 36 48 44 38 L40 24 Z"/><path d="M19 86 L81 86 L84 92 L16 92 Z"/></g><path d="M49 19 L53 31 L48 42" stroke="#222" stroke-width="3" fill="none"/></svg>`,
+bB:`<svg class="piece" viewBox="0 0 100 100"><g fill="#222" stroke="#eee" stroke-width="3" stroke-linejoin="round"><path d="M50 12 L60 24 L56 38 C64 48 69 59 67 68 L76 82 L24 82 L33 68 C31 59 36 48 44 38 L40 24 Z"/><path d="M19 86 L81 86 L84 92 L16 92 Z"/></g><path d="M49 19 L53 31 L48 42" stroke="#eee" stroke-width="3" fill="none"/></svg>`,
 
-    wN: `
-        <svg class="piece" viewBox="0 0 100 100">
+wR:`<svg class="piece" viewBox="0 0 100 100"><g fill="#fff" stroke="#222" stroke-width="3" stroke-linejoin="round"><path d="M27 18 L39 18 L39 28 L47 28 L47 18 L53 18 L53 28 L61 28 L61 18 L73 18 L70 38 L65 45 L65 78 L75 83 L25 83 L35 78 L35 45 L30 38 Z"/><path d="M21 86 L79 86 L83 92 L17 92 Z"/></g></svg>`,
+bR:`<svg class="piece" viewBox="0 0 100 100"><g fill="#222" stroke="#eee" stroke-width="3" stroke-linejoin="round"><path d="M27 18 L39 18 L39 28 L47 28 L47 18 L53 18 L53 28 L61 28 L61 18 L73 18 L70 38 L65 45 L65 78 L75 83 L25 83 L35 78 L35 45 L30 38 Z"/><path d="M21 86 L79 86 L83 92 L17 92 Z"/></g></svg>`,
 
-            <g fill="#fff"
-               stroke="#222"
-               stroke-width="3"
-               stroke-linejoin="round">
+wQ:`<svg class="piece" viewBox="0 0 100 100"><g fill="#fff" stroke="#222" stroke-width="3" stroke-linejoin="round"><path d="M25 78 L31 40 L22 25 L38 35 L50 19 L62 35 L78 25 L69 40 L75 78 Z"/><path d="M20 83 L80 83 L84 92 L16 92 Z"/></g><circle cx="50" cy="13" r="5" fill="#fff" stroke="#222" stroke-width="3"/></svg>`,
+bQ:`<svg class="piece" viewBox="0 0 100 100"><g fill="#222" stroke="#eee" stroke-width="3" stroke-linejoin="round"><path d="M25 78 L31 40 L22 25 L38 35 L50 19 L62 35 L78 25 L69 40 L75 78 Z"/><path d="M20 83 L80 83 L84 92 L16 92 Z"/></g><circle cx="50" cy="13" r="5" fill="#222" stroke="#eee" stroke-width="3"/></svg>`,
 
-                <path d="
-                    M22 82
-                    L29 68
-                    L29 53
-                    C29 43 34 32 43 25
-                    L39 15
-                    L54 20
-                    L64 14
-                    L69 23
-                    L84 28
-                    L78 38
-                    L64 40
-                    C69 48 71 56 69 65
-                    L79 82
-                    Z
-                "/>
-
-                <path d="
-                    M17 85
-                    L82 85
-                    L85 92
-                    L14 92
-                    Z
-                "/>
-
-            </g>
-
-            <circle
-                cx="69"
-                cy="29"
-                r="3"
-                fill="#222"
-            />
-
-        </svg>
-    `,
-
-    bN: `
-        <svg class="piece" viewBox="0 0 100 100">
-
-            <g fill="#222"
-               stroke="#eee"
-               stroke-width="3"
-               stroke-linejoin="round">
-
-                <path d="
-                    M22 82
-                    L29 68
-                    L29 53
-                    C29 43 34 32 43 25
-                    L39 15
-                    L54 20
-                    L64 14
-                    L69 23
-                    L84 28
-                    L78 38
-                    L64 40
-                    C69 48 71 56 69 65
-                    L79 82
-                    Z
-                "/>
-
-                <path d="
-                    M17 85
-                    L82 85
-                    L85 92
-                    L14 92
-                    Z
-                "/>
-
-            </g>
-
-            <circle
-                cx="69"
-                cy="29"
-                r="3"
-                fill="#eee"
-            />
-
-        </svg>
-    `,
-
-    wB: `
-        <svg class="piece" viewBox="0 0 100 100">
-            <g fill="#fff" stroke="#222" stroke-width="3"
-               stroke-linejoin="round">
-                <path d="
-                    M50 12
-                    L60 24
-                    L56 38
-                    C64 48 69 59 67 68
-                    L76 82
-                    L24 82
-                    L33 68
-                    C31 59 36 48 44 38
-                    L40 24
-                    Z
-                "/>
-                <path d="M19 86 L81 86 L84 92 L16 92 Z"/>
-            </g>
-            <path
-                d="M49 19 L53 31 L48 42"
-                stroke="#222"
-                stroke-width="3"
-                fill="none"
-            />
-        </svg>
-    `,
-
-    bB: `
-        <svg class="piece" viewBox="0 0 100 100">
-            <g fill="#222" stroke="#eee" stroke-width="3"
-               stroke-linejoin="round">
-                <path d="
-                    M50 12
-                    L60 24
-                    L56 38
-                    C64 48 69 59 67 68
-                    L76 82
-                    L24 82
-                    L33 68
-                    C31 59 36 48 44 38
-                    L40 24
-                    Z
-                "/>
-                <path d="M19 86 L81 86 L84 92 L16 92 Z"/>
-            </g>
-            <path
-                d="M49 19 L53 31 L48 42"
-                stroke="#eee"
-                stroke-width="3"
-                fill="none"
-            />
-        </svg>
-    `,
-
-    wR: `
-        <svg class="piece" viewBox="0 0 100 100">
-            <g fill="#fff" stroke="#222" stroke-width="3"
-               stroke-linejoin="round">
-                <path d="
-                    M27 18 L39 18 L39 28
-                    L47 28 L47 18
-                    L53 18 L53 28
-                    L61 28 L61 18
-                    L73 18 L70 38
-                    L65 45 L65 78
-                    L75 83 L25 83
-                    L35 78 L35 45 L30 38 Z
-                "/>
-                <path d="M21 86 L79 86 L83 92 L17 92 Z"/>
-            </g>
-        </svg>
-    `,
-
-    bR: `
-        <svg class="piece" viewBox="0 0 100 100">
-            <g fill="#222" stroke="#eee" stroke-width="3"
-               stroke-linejoin="round">
-                <path d="
-                    M27 18 L39 18 L39 28
-                    L47 28 L47 18
-                    L53 18 L53 28
-                    L61 28 L61 18
-                    L73 18 L70 38
-                    L65 45 L65 78
-                    L75 83 L25 83
-                    L35 78 L35 45 L30 38 Z
-                "/>
-                <path d="M21 86 L79 86 L83 92 L17 92 Z"/>
-            </g>
-        </svg>
-    `,
-
-    wQ: `
-        <svg class="piece" viewBox="0 0 100 100">
-            <g fill="#fff" stroke="#222" stroke-width="3"
-               stroke-linejoin="round">
-                <path d="
-                    M25 78
-                    L31 40
-                    L22 25
-                    L38 35
-                    L50 19
-                    L62 35
-                    L78 25
-                    L69 40
-                    L75 78
-                    Z
-                "/>
-                <path d="M20 83 L80 83 L84 92 L16 92 Z"/>
-            </g>
-            <circle cx="50" cy="13" r="5"
-                    fill="#fff" stroke="#222" stroke-width="3"/>
-        </svg>
-    `,
-
-    bQ: `
-        <svg class="piece" viewBox="0 0 100 100">
-            <g fill="#222" stroke="#eee" stroke-width="3"
-               stroke-linejoin="round">
-                <path d="
-                    M25 78
-                    L31 40
-                    L22 25
-                    L38 35
-                    L50 19
-                    L62 35
-                    L78 25
-                    L69 40
-                    L75 78
-                    Z
-                "/>
-                <path d="M20 83 L80 83 L84 92 L16 92 Z"/>
-            </g>
-            <circle cx="50" cy="13" r="5"
-                    fill="#222" stroke="#eee" stroke-width="3"/>
-        </svg>
-    `,
-
-    wK: `
-        <svg class="piece" viewBox="0 0 100 100">
-            <g fill="#fff" stroke="#222" stroke-width="3"
-               stroke-linejoin="round">
-                <path d="
-                    M44 12 L56 12
-                    L56 25 L68 25
-                    L68 37 L56 37
-                    L56 47
-                    C64 51 70 60 70 69
-                    L77 82
-                    L23 82
-                    L30 69
-                    C30 60 36 51 44 47
-                    L44 37
-                    L32 37
-                    L32 25
-                    L44 25 Z
-                "/>
-                <path d="M19 86 L81 86 L84 92 L16 92 Z"/>
-            </g>
-        </svg>
-    `,
-
-    bK: `
-        <svg class="piece" viewBox="0 0 100 100">
-            <g fill="#222" stroke="#eee" stroke-width="3"
-               stroke-linejoin="round">
-                <path d="
-                    M44 12 L56 12
-                    L56 25 L68 25
-                    L68 37 L56 37
-                    L56 47
-                    C64 51 70 60 70 69
-                    L77 82
-                    L23 82
-                    L30 69
-                    C30 60 36 51 44 47
-                    L44 37
-                    L32 37
-                    L32 25
-                    L44 25 Z
-                "/>
-                <path d="M19 86 L81 86 L84 92 L16 92 Z"/>
-            </g>
-        </svg>
-    `
+wK:`<svg class="piece" viewBox="0 0 100 100"><g fill="#fff" stroke="#222" stroke-width="3" stroke-linejoin="round"><path d="M44 12 L56 12 L56 25 L68 25 L68 37 L56 37 L56 47 C64 51 70 60 70 69 L77 82 L23 82 L30 69 C30 60 36 51 44 47 L44 37 L32 37 L32 25 L44 25 Z"/><path d="M19 86 L81 86 L84 92 L16 92 Z"/></g></svg>`,
+bK:`<svg class="piece" viewBox="0 0 100 100"><g fill="#222" stroke="#eee" stroke-width="3" stroke-linejoin="round"><path d="M44 12 L56 12 L56 25 L68 25 L68 37 L56 37 L56 47 C64 51 70 60 70 69 L77 82 L23 82 L30 69 C30 60 36 51 44 47 L44 37 L32 37 L32 25 L44 25 Z"/><path d="M19 86 L81 86 L84 92 L16 92 Z"/></g></svg>`
 };
 
 
@@ -995,515 +161,270 @@ const pieceSVG = {
    STARTING POSITION
 ========================================================= */
 
-const startingPosition = {
-
-    a8: "bR",
-    b8: "bN",
-    c8: "bB",
-    d8: "bQ",
-    e8: "bK",
-    f8: "bB",
-    g8: "bN",
-    h8: "bR",
-
-    a7: "bP",
-    b7: "bP",
-    c7: "bP",
-    d7: "bP",
-    e7: "bP",
-    f7: "bP",
-    g7: "bP",
-    h7: "bP",
-
-    a2: "wP",
-    b2: "wP",
-    c2: "wP",
-    d2: "wP",
-    e2: "wP",
-    f2: "wP",
-    g2: "wP",
-    h2: "wP",
-
-    a1: "wR",
-    b1: "wN",
-    c1: "wB",
-    d1: "wQ",
-    e1: "wK",
-    f1: "wB",
-    g1: "wN",
-    h1: "wR"
+const startingPosition={
+a8:"bR",b8:"bN",c8:"bB",d8:"bQ",e8:"bK",f8:"bB",g8:"bN",h8:"bR",
+a7:"bP",b7:"bP",c7:"bP",d7:"bP",e7:"bP",f7:"bP",g7:"bP",h7:"bP",
+a2:"wP",b2:"wP",c2:"wP",d2:"wP",e2:"wP",f2:"wP",g2:"wP",h2:"wP",
+a1:"wR",b1:"wN",c1:"wB",d1:"wQ",e1:"wK",f1:"wB",g1:"wN",h1:"wR"
 };
 
 
 /* =========================================================
    OPENING DATA
-
-   ========================================================
-   THIS IS THE ONLY SECTION YOU NEED TO EDIT TO ADD CONTENT.
-   ========================================================
-
-   Every opening has:
-
-       id
-       name
-       difficulty
-       description
-       introSteps
-       variations
-       keyIdeas
-
-   --------------------------------------------------------
-   ADDING A NEW OPENING
-   --------------------------------------------------------
-
-   Copy this structure:
-
-       "your-opening-id": {
-
-           name: "Your Opening",
-
-           difficulty: "Intermediate",
-
-           description:
-               "Short description of the opening.",
-
-           introSteps: [
-
-               {
-                   title: "First idea",
-
-                   text:
-                       "Explanation of the position.",
-
-                   prompt:
-                       "Play e4.",
-
-                   from: "e2",
-                   to: "e4",
-
-                   explanation:
-                       "Why this move is good."
-               }
-
-           ],
-
-           variations: {
-
-               main: {
-
-                   name: "Main Line",
-
-                   description:
-                       "Description of this variation.",
-
-                   steps: [
-
-                       {
-                           title: "Next move",
-
-                           text:
-                               "Explain what Black did.",
-
-                           prompt:
-                               "Play Nf3.",
-
-                           from: "g1",
-                           to: "f3",
-
-                           opponent: {
-                               from: "e7",
-                               to: "e5"
-                           },
-
-                           explanation:
-                               "Why this move matters."
-                       }
-
-                   ]
-               }
-
-           },
-
-           keyIdeas: [
-               "First important idea.",
-               "Second important idea.",
-               "Third important idea."
-           ]
-       }
-
-   --------------------------------------------------------
-   IMPORTANT ABOUT opponent
-   --------------------------------------------------------
-
-   The opponent move belongs on the STEP that follows the
-   White move it responds to.
-
-   Example:
-
-       White plays e4.
-
-   Then the NEXT step contains:
-
-       opponent: {
-           from: "e7",
-           to: "e5"
-       }
-
-   The engine automatically plays ...e5 before displaying
-   that next lesson step.
-
-   --------------------------------------------------------
-   CASTLING
-   --------------------------------------------------------
-
-   For castling:
-
-       from: "e1",
-       to: "g1",
-       special: "castle"
-
-   or queenside:
-
-       from: "e1",
-       to: "c1",
-       special: "castle"
-
-   The engine moves both the king and rook automatically.
-
-   --------------------------------------------------------
-   TACTICS
-   --------------------------------------------------------
-
-   Add:
-
-       tactic: true
-
-   to a move where you want the hint system to recognize
-   that the player is supposed to find a tactical move.
-
-   --------------------------------------------------------
-   STARTING POSITION
-   --------------------------------------------------------
-
-   By default every opening starts from the normal chess
-   starting position.
-
-   If you ever need a custom starting position, add:
-
-       startingPosition: {
-           ...
-       }
-
-   to the opening.
-
-   ======================================================== */
-
-const OPENINGS = {
-
-    "scotch-gambit": {
-
-        name: "Scotch Gambit",
-
-        difficulty: "Advanced",
-
-        description:
-            "An aggressive opening that gives up a pawn for rapid development.",
-
-        introSteps: [
-
-            {
-                title: "Start with the center",
-
-                text:
-                    "The Scotch Gambit begins with 1. e4. " +
-                    "You immediately claim central space while opening " +
-                    "the diagonals for your queen and f1 bishop.",
-
-                prompt:
-                    "First, play e4.",
-
-                from: "e2",
-                to: "e4",
-
-                explanation:
-                    "e4 controls d5 and f5, opens the f1 bishop, " +
-                    "and gives White an active start."
-            },
-
-            {
-                title: "Develop with tempo",
-
-                text:
-                    "Black answered with ...e5. Now develop your " +
-                    "king's knight with Nf3. Besides developing, " +
-                    "the knight attacks the e5-pawn.",
-
-                prompt:
-                    "Now play Nf3.",
-
-                from: "g1",
-                to: "f3",
-
-                opponent: {
-                    from: "e7",
-                    to: "e5"
-                },
-
-                explanation:
-                    "Nf3 develops toward the center and immediately " +
-                    "puts pressure on e5."
-            },
-
-            {
-                title: "Fight for the center",
-
-                text:
-                    "Black played ...Nc6. Now play d4. " +
-                    "This is the Scotch Game: White challenges " +
-                    "Black's central pawn immediately.",
-
-                prompt:
-                    "Play d4.",
-
-                from: "d2",
-                to: "d4",
-
-                opponent: {
-                    from: "b8",
-                    to: "c6"
-                },
-
-                explanation:
-                    "d4 forces Black to make a decision about the e5-pawn " +
-                    "and opens the game before Black can comfortably develop."
-            },
-
-            {
-                title: "The gambit",
-
-                text:
-                    "Black captured with ...exd4. Instead of automatically " +
-                    "taking the pawn back with Nxd4, play Bc4.",
-
-                prompt:
-                    "Play Bc4.",
-
-                from: "f1",
-                to: "c4",
-
-                opponent: {
-                    from: "e5",
-                    to: "d4"
-                },
-
-                explanation:
-                    "Bc4 is the defining move of the Scotch Gambit. " +
-                    "White temporarily leaves the pawn on d4 in exchange " +
-                    "for rapid development and attacking chances."
-            }
-
+   ADD NEW OPENINGS HERE.
+   DO NOT CHANGE THE ENGINE BELOW.
+========================================================= */
+
+const OPENINGS={
+
+{
+  "scotch-gambit": {
+    "name": "Scotch Gambit",
+    "difficulty": "Advanced",
+    "eco": "C44",
+    "description": "An aggressive opening where White sacrifices the d4-pawn to secure rapid piece development, open central lines, and early attacking chances against f7.",
+    
+    "introSteps": [
+      {
+        "title": "Start with the center",
+        "text": "The Scotch Gambit begins with 1. e4. You immediately claim central space while opening diagonals for your queen and f1-bishop.",
+        "prompt": "First, play e4.",
+        "from": "e2",
+        "to": "e4",
+        "explanation": "e4 controls d5 and f5, opens the f1-bishop, and gives White an active start."
+      },
+      {
+        "title": "Develop with tempo",
+        "text": "Black answered with 1...e5. Now develop your king's knight with Nf3. Besides developing, the knight attacks the e5-pawn.",
+        "prompt": "Now play Nf3.",
+        "from": "g1",
+        "to": "f3",
+        "opponent": { "from": "e7", "to": "e5" },
+        "explanation": "Nf3 develops toward the center and immediately puts pressure on e5."
+      },
+      {
+        "title": "Fight for the center",
+        "text": "Black played 2...Nc6. Now play d4. This is the Scotch Game entry: White challenges Black's central pawn immediately.",
+        "prompt": "Play d4.",
+        "from": "d2",
+        "to": "d4",
+        "opponent": { "from": "b8", "to": "c6" },
+        "explanation": "d4 forces Black to make a decision about the e5-pawn and opens the game before Black can comfortably develop."
+      },
+      {
+        "title": "The gambit offer",
+        "text": "Black captured with 3...exd4. Instead of automatically recapturing with 4. Nxd4, play 4. Bc4.",
+        "prompt": "Play Bc4.",
+        "from": "f1",
+        "to": "c4",
+        "opponent": { "from": "e5", "to": "d4" },
+        "explanation": "Bc4 is the defining move of the Scotch Gambit. White leaves the d4-pawn in exchange for rapid piece deployment, castling readiness, and pressure on f7."
+      }
+    ],
+
+    "variations": {
+
+      "dubois": {
+        "name": "Dubois-Réti Defense (4...Nf6 Main Line)",
+        "description": "Black counterattacks White's e4-pawn with ...Nf6, challenging White's center immediately.",
+        "steps": [
+          {
+            "title": "Advance and attack",
+            "text": "Black plays 4...Nf6. Respond by advancing your e-pawn to e5 to kick the knight away.",
+            "prompt": "Play e5.",
+            "from": "e4",
+            "to": "e5",
+            "opponent": { "from": "g8", "to": "f6" },
+            "explanation": "e5 gains central space and disrupts Black's knight. Black must react precisely with ...d5."
+          },
+          {
+            "title": "The central counter-strike",
+            "text": "Black counters in the center with 5...d5! Pin the c6-knight with Bb5.",
+            "prompt": "Play Bb5.",
+            "from": "c4",
+            "to": "b5",
+            "opponent": { "from": "d7", "to": "d5" },
+            "explanation": "Bb5 maintains pressure while saving the bishop. Black usually jumps the knight to e4."
+          },
+          {
+            "title": "Recapture on d4",
+            "text": "Black leaps to e4 with 6...Ne4. Now you can safely capture d4 with your knight.",
+            "prompt": "Play Nxd4.",
+            "from": "f3",
+            "to": "d4",
+            "opponent": { "from": "f6", "to": "e4" },
+            "explanation": "Nxd4 restores material balance while keeping dynamic pressure against Black's pinned setup on c6."
+          }
         ],
+        "summary": "The main line with 4...Nf6 leads to balanced, dynamic play where White uses space and Black relies on active pieces."
+      },
 
+      "classical": {
+        "name": "Classical / Giuoco Piano Line (4...Bc5 5. c3 Nf6)",
+        "description": "Black develops the dark-squared bishop to c5. White offers c3 to build a pawn center.",
+        "steps": [
+          {
+            "title": "Challenge the pawn chain",
+            "text": "Black chooses 4...Bc5. Offer a second pawn with 5. c3.",
+            "prompt": "Play c3.",
+            "from": "c2",
+            "to": "c3",
+            "opponent": { "from": "f8", "to": "c5" },
+            "explanation": "c3 aims to rebuild full central control with d4 and c3 if Black declines or trades."
+          },
+          {
+            "title": "Counter-develop",
+            "text": "Black declines taking c3 and develops with 5...Nf6. Castle kingside immediately.",
+            "prompt": "Castle kingside with O-O.",
+            "from": "e1",
+            "to": "g1",
+            "opponent": { "from": "g8", "to": "f6" },
+            "special": "castle",
+            "explanation": "Castling secures your king while leaving Black's e4-pawn target vulnerable to Re1 ideas."
+          },
+          {
+            "title": "Recapture in the center",
+            "text": "Black takes 6...dxc3. Recapture with 7. Nxc3.",
+            "prompt": "Play Nxc3.",
+            "from": "b1",
+            "to": "c3",
+            "opponent": { "from": "d4", "to": "c3" },
+            "explanation": "Nxc3 completes a full gambit setup, giving White powerful initiative and open files."
+          }
+        ],
+        "summary": "A classic gambit formation where White trades pawns for superior development and open lines toward the kingside."
+      },
 
-        variations: {
+      "haxo": {
+        "name": "Haxo Gambit (4...Bc5 5. c3 dxc3 6. Bxf7+)",
+        "description": "A sharp tactical line where White sacrifices the bishop on f7 to disrupt Black's king.",
+        "steps": [
+          {
+            "title": "Prepare the strike",
+            "text": "Black played 4...Bc5. Offer the c3 pawn.",
+            "prompt": "Play c3.",
+            "from": "c2",
+            "to": "c3",
+            "opponent": { "from": "f8", "to": "c5" },
+            "explanation": "c3 invites Black to grab more material, setting up a combination."
+          },
+          {
+            "title": "The bishop sacrifice",
+            "text": "Black grabbed on c3 with 5...dxc3. Strike with 6. Bxf7+!",
+            "prompt": "Play Bxf7+.",
+            "from": "c4",
+            "to": "f7",
+            "opponent": { "from": "d4", "to": "c3" },
+            "tactic": true,
+            "explanation": "Bxf7+ drags the king away from safety and strips away Black's castling rights."
+          },
+          {
+            "title": "The double attack",
+            "text": "Black accepts with 6...Kxf7. Launch the queen with 7. Qd5+.",
+            "prompt": "Play Qd5+.",
+            "from": "d1",
+            "to": "d5",
+            "opponent": { "from": "e8", "to": "f7" },
+            "tactic": true,
+            "explanation": "Qd5+ checks the king on f7 while simultaneously attacking the undefended c5-bishop."
+          },
+          {
+            "title": "Regain the piece",
+            "text": "Black moves the king back to e8 (or f8). Recapture the bishop with 8. Qxc5.",
+            "prompt": "Play Qxc5.",
+            "from": "d5",
+            "to": "c5",
+            "opponent": { "from": "f7", "to": "e8" },
+            "explanation": "White regains the sacrificed piece with an exposed opponent king and active control."
+          }
+        ],
+        "summary": "The Haxo Gambit sacrifices material for immediate king displacement and central queen activity."
+      },
 
-            dubois: {
+      "max_lange_transposition": {
+        "name": "Max Lange Attack Transposition",
+        "description": "If White castles early against 4...Bc5, the game can enter the razor-sharp Max Lange Attack.",
+        "steps": [
+          {
+            "title": "Castle early",
+            "text": "Black played 4...Bc5. Castle immediately instead of playing c3.",
+            "prompt": "Castle kingside with O-O.",
+            "from": "e1",
+            "to": "g1",
+            "opponent": { "from": "f8", "to": "c5" },
+            "special": "castle",
+            "explanation": "O-O puts the rook on e1 quickly to prepare central pawn breaks."
+          },
+          {
+            "title": "Push e5",
+            "text": "Black develops 5...Nf6. Strike with 6. e5!",
+            "prompt": "Play e5.",
+            "from": "e4",
+            "to": "e5",
+            "opponent": { "from": "g8", "to": "f6" },
+            "explanation": "6. e5 kicks off the wild tactics of the Max Lange Attack where both sides counterattack."
+          }
+        ],
+        "summary": "Leading to one of the oldest tactical attacks in chess history, requiring precise calculation from both players."
+      },
 
-                name: "Dubois-Réti Defense",
+      "h6": {
+        "name": "h6 Passive Defense",
+        "description": "Black plays ...h6 to stop Ng5 jumps, allowing White to build central momentum.",
+        "steps": [
+          {
+            "title": "Consolidate and castle",
+            "text": "Black plays 4...h6. Simply castle kingside.",
+            "prompt": "Castle kingside with O-O.",
+            "from": "e1",
+            "to": "g1",
+            "opponent": { "from": "h7", "to": "h6" },
+            "special": "castle",
+            "explanation": "Castling puts your king in safety while Black has wasted a tempo with ...h6."
+          },
+          {
+            "title": "Advance in the center",
+            "text": "Black plays 5...Nf6. Advance with 6. e5.",
+            "prompt": "Play e5.",
+            "from": "e4",
+            "to": "e5",
+            "opponent": { "from": "g8", "to": "f6" },
+            "explanation": "e5 takes space and forces Black's knight to find awkward squares."
+          }
+        ],
+        "summary": "Against passive moves like ...h6, White develops calmly and takes total central control."
+      },
 
-                description:
-                    "The main line: Black develops the king's knight with ...Nf6.",
+      "passive_d6": {
+        "name": "Passive Defense (4...d6)",
+        "description": "Black guards the center with ...d6, leading to a comfortable position for White.",
+        "steps": [
+          {
+            "title": "Recapture d4",
+            "text": "Black plays 4...d6. Recapture the pawn with 5. Nxd4.",
+            "prompt": "Play Nxd4.",
+            "from": "f3",
+            "to": "d4",
+            "opponent": { "from": "d7", "to": "d6" },
+            "explanation": "Since Black played a passive pawn move, recapturing d4 gives White a dominant spatial edge without any risk."
+          }
+        ],
+        "summary": "4...d6 is solid for Black, but gives up the initiative, allowing White an easy space advantage."
+      }
 
-                steps: [
-
-                    {
-                        title: "The main defense",
-
-                        text:
-                            "Black chooses 4...Nf6, the Dubois-Réti Defense. " +
-                            "The knight attacks your e4-pawn and Black is ready " +
-                            "to challenge your center.",
-
-                        prompt:
-                            "Play e5.",
-
-                        from: "e4",
-                        to: "e5",
-
-                        opponent: {
-                            from: "g8",
-                            to: "f6"
-                        },
-
-                        explanation:
-                            "e5 gains space and kicks the knight away. " +
-                            "The important idea is to keep Black's pieces from " +
-                            "settling comfortably."
-                    }
-
-                ]
-            },
-
-
-            haxo: {
-
-                name: "Haxo Gambit",
-
-                description:
-                    "Black plays ...Bc5. White responds with c3 and attacks the center.",
-
-                steps: [
-
-                    {
-                        title: "Black develops actively",
-
-                        text:
-                            "Black played 4...Bc5. The bishop develops actively " +
-                            "and puts pressure on f2.",
-
-                        prompt:
-                            "Play c3.",
-
-                        from: "c2",
-                        to: "c3",
-
-                        opponent: {
-                            from: "f8",
-                            to: "c5"
-                        },
-
-                        explanation:
-                            "c3 attacks the d4-pawn and prepares to rebuild " +
-                            "your center. It also creates tactical possibilities."
-                    },
-
-                    {
-                        title: "Black grabs the pawn",
-
-                        text:
-                            "Black accepts the gambit with ...dxc3. " +
-                            "Now you have a tactical opportunity instead of " +
-                            "simply trying to recover the pawn.",
-
-                        prompt:
-                            "Play Bxf7+.",
-
-                        from: "c4",
-                        to: "f7",
-
-                        opponent: {
-                            from: "d4",
-                            to: "c3"
-                        },
-
-                        explanation:
-                            "Bxf7+ forces the king to make a decision. " +
-                            "The point is not merely the pawn on f7 — you're " +
-                            "dragging the king away from its safe starting square."
-                    },
-
-                    {
-                        title: "The king takes",
-
-                        text:
-                            "Black accepts the bishop with ...Kxf7. " +
-                            "Now comes the tactical punch.",
-
-                        prompt:
-                            "Play Qd5+.",
-
-                        from: "d1",
-                        to: "d5",
-
-                        opponent: {
-                            from: "e8",
-                            to: "f7"
-                        },
-
-                        tactic: true,
-
-                        explanation:
-                            "Qd5+ is a fork. The queen checks the king on f7 " +
-                            "while also attacking the bishop on c5. After the king " +
-                            "moves, White can take the bishop."
-                    }
-
-                ]
-            },
-
-
-            h6: {
-
-                name: "h6 Line",
-
-                description:
-                    "Black uses ...h6 to stop ideas involving Ng5.",
-
-                steps: [
-
-                    {
-                        title: "Black asks the knight a question",
-
-                        text:
-                            "Black plays ...h6. This move prevents Ng5 ideas " +
-                            "and asks White to decide how aggressively to continue.",
-
-                        prompt:
-                            "Castle kingside with O-O.",
-
-                        from: "e1",
-                        to: "g1",
-
-                        opponent: {
-                            from: "h7",
-                            to: "h6"
-                        },
-
-                        special: "castle",
-
-                        explanation:
-                            "Castling is a simple and strong response. " +
-                            "You do not need to force an attack immediately; " +
-                            "your development advantage is already useful."
-                    },
-
-                    {
-                        title: "Strike the center",
-
-                        text:
-                            "With your king safe, challenge Black's knight " +
-                            "and gain more space.",
-
-                        prompt:
-                            "Play e5.",
-
-                        from: "e4",
-                        to: "e5",
-
-                        opponent: {
-                            from: "g8",
-                            to: "f6"
-                        },
-
-                        explanation:
-                            "e5 gains space and forces the f6-knight to react. " +
-                            "This keeps the initiative instead of allowing Black " +
-                            "to quietly consolidate."
-                    }
-
-                ]
-            }
-
-        },
-
-
-        keyIdeas: [
-            "Develop quickly instead of obsessing over material.",
-            "Use checks and threats to make Black spend time defending.",
-            "Keep your king safe while maintaining the initiative.",
-            "Look for tactical opportunities created by Black's exposed king."
-        ]
     }
+  }
+}
+                     
+},
+
+keyIdeas:[
+"Develop quickly instead of obsessing over material.",
+"Use checks and threats to make Black spend time defending.",
+"Keep your king safe while maintaining the initiative.",
+"Look for tactical opportunities created by Black's exposed king."
+]
+}
 
 };
 
@@ -1512,276 +433,80 @@ const OPENINGS = {
    STATE
 ========================================================= */
 
-let currentOpeningId = "scotch-gambit";
-
-let pieces = {};
-
-let selectedSquare = null;
-
-let inputLocked = false;
-
-let currentStage = "intro";
-
-let currentStep = 0;
-
-let wrongAttempts = 0;
-
-let completedStages = new Set();
+let currentOpeningId="scotch-gambit",pieces={},selectedSquare=null,inputLocked=false,currentStage="intro",currentStep=0,wrongAttempts=0,completedStages=new Set();
 
 
 /* =========================================================
-   PROGRESS STORAGE
+   PROGRESS
 ========================================================= */
 
-const STORAGE_KEY =
-    "chessOpeningTrainerProgress";
+const STORAGE_KEY="chessOpeningTrainerProgress";
 
-
-function getProgressData() {
-
-    const defaultData = {
-        learned: {},
-        completed: {}
-    };
-
-    const saved =
-        localStorage.getItem(STORAGE_KEY);
-
-    if (!saved) {
-        return defaultData;
-    }
-
-    try {
-
-        const parsed =
-            JSON.parse(saved);
-
-        return {
-            learned: parsed.learned || {},
-            completed: parsed.completed || {}
-        };
-
-    } catch (error) {
-
-        console.log(
-            "Could not load opening progress."
-        );
-
-        return defaultData;
-    }
+function getProgressData(){
+const saved=localStorage.getItem(STORAGE_KEY);
+if(!saved)return{learned:{},completed:{}};
+try{
+const parsed=JSON.parse(saved);
+return{learned:parsed.learned||{},completed:parsed.completed||{}};
+}catch(error){return{learned:{},completed:{}}}
 }
 
-
-function saveProgressData(data) {
-
-    localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify(data)
-    );
-}
-
-
-function markOpeningLearned(openingId) {
-
-    const data =
-        getProgressData();
-
-    data.learned[openingId] = true;
-
-    saveProgressData(data);
-}
-
-
-function isOpeningLearned(openingId) {
-
-    const data =
-        getProgressData();
-
-    return data.learned[openingId] === true;
-}
-
-
-function saveCompletedStages() {
-
-    const data =
-        getProgressData();
-
-    data.completed[currentOpeningId] =
-        [...completedStages];
-
-    saveProgressData(data);
-}
-
-
-function loadCompletedStages() {
-
-    const data =
-        getProgressData();
-
-    const saved =
-        data.completed[currentOpeningId] || [];
-
-    completedStages =
-        new Set(saved);
-}
+function saveProgressData(data){localStorage.setItem(STORAGE_KEY,JSON.stringify(data))}
+function markOpeningLearned(id){const data=getProgressData();data.learned[id]=true;saveProgressData(data)}
+function isOpeningLearned(id){return getProgressData().learned[id]===true}
+function saveCompletedStages(){const data=getProgressData();data.completed[currentOpeningId]=[...completedStages];saveProgressData(data)}
+function loadCompletedStages(){const data=getProgressData();completedStages=new Set(data.completed[currentOpeningId]||[])}
 
 
 /* =========================================================
    OPENING HELPERS
 ========================================================= */
 
-function getCurrentOpening() {
-
-    return OPENINGS[currentOpeningId];
-}
-
-
-function getStageOrder() {
-
-    const opening =
-        getCurrentOpening();
-
-    return [
-        "intro",
-        ...Object.keys(opening.variations)
-    ];
-}
-
-
-function getStepsForStage(stage) {
-
-    const opening =
-        getCurrentOpening();
-
-    if (stage === "intro") {
-        return opening.introSteps;
-    }
-
-    return opening.variations[stage].steps;
-}
-
-
-function getCurrentStep() {
-
-    const steps =
-        getStepsForStage(currentStage);
-
-    return steps[currentStep];
-}
+function getCurrentOpening(){return OPENINGS[currentOpeningId]}
+function getStageOrder(){return["intro",...Object.keys(getCurrentOpening().variations)]}
+function getStepsForStage(stage){return stage==="intro"?getCurrentOpening().introSteps:getCurrentOpening().variations[stage].steps}
+function getCurrentStep(){return getStepsForStage(currentStage)[currentStep]}
 
 
 /* =========================================================
-   BOARD POSITION HELPERS
+   POSITION HELPERS
 ========================================================= */
 
-function clonePosition(position) {
+function clonePosition(position){return{...position}}
 
-    return {
-        ...position
-    };
+function makeMoveOnPosition(position,from,to){
+if(!position[from])return;
+position[to]=position[from];
+delete position[from];
 }
 
-
-function applyStepToPosition(position, step) {
-
-    if (step.opponent) {
-
-        makeMoveOnPosition(
-            position,
-            step.opponent.from,
-            step.opponent.to
-        );
-    }
-
-    if (step.special === "castle") {
-
-        castleOnPosition(
-            position,
-            step.from,
-            step.to
-        );
-
-    } else {
-
-        makeMoveOnPosition(
-            position,
-            step.from,
-            step.to
-        );
-    }
+function castleOnPosition(position,from,to){
+const king=position[from];
+if(!king)return;
+const isWhite=king==="wK",rank=isWhite?"1":"8";
+const kingside=to==="g"+rank,queenside=to==="c"+rank;
+if(!kingside&&!queenside)return;
+const rookFrom=kingside?"h"+rank:"a"+rank,rookTo=kingside?"f"+rank:"d"+rank;
+position[to]=position[from];
+delete position[from];
+if(position[rookFrom]){position[rookTo]=position[rookFrom];delete position[rookFrom]}
 }
 
-
-function getOpeningBasePosition() {
-
-    const opening =
-        getCurrentOpening();
-
-    const position =
-        clonePosition(
-            opening.startingPosition ||
-            startingPosition
-        );
-
-    /*
-       Build the exact position after the opening intro.
-
-       Each intro step has an opponent reply that belongs
-       to that step, followed by the White move itself.
-    */
-
-    opening.introSteps.forEach(step => {
-
-        if (step.opponent) {
-
-            makeMoveOnPosition(
-                position,
-                step.opponent.from,
-                step.opponent.to
-            );
-        }
-
-        if (step.special === "castle") {
-
-            castleOnPosition(
-                position,
-                step.from,
-                step.to
-            );
-
-        } else {
-
-            makeMoveOnPosition(
-                position,
-                step.from,
-                step.to
-            );
-        }
-    });
-
-    return position;
+function applyStepToPosition(position,step){
+if(step.opponent)makeMoveOnPosition(position,step.opponent.from,step.opponent.to);
+if(step.special==="castle")castleOnPosition(position,step.from,step.to);
+else makeMoveOnPosition(position,step.from,step.to);
 }
 
+function getOpeningBasePosition(){
+const opening=getCurrentOpening(),position=clonePosition(opening.startingPosition||startingPosition);
+opening.introSteps.forEach(step=>applyStepToPosition(position,step));
+return position;
+}
 
-function getPositionBeforeStage(stage) {
-
-    if (stage === "intro") {
-
-        const opening =
-            getCurrentOpening();
-
-        return clonePosition(
-            opening.startingPosition ||
-            startingPosition
-        );
-    }
-
-    /*
-       Every variation begins from the position after
-       the opening's intro.
-    */
-
-    return getOpeningBasePosition();
+function getPositionBeforeStage(stage){
+if(stage==="intro")return clonePosition(getCurrentOpening().startingPosition||startingPosition);
+return getOpeningBasePosition();
 }
 
 
@@ -1789,289 +514,82 @@ function getPositionBeforeStage(stage) {
    BOARD
 ========================================================= */
 
-function renderBoard() {
+function renderBoard(){
+const board=document.getElementById("board");
+board.innerHTML="";
 
-    const board =
-        document.getElementById("board");
+for(let rank=8;rank>=1;rank--){
+for(let fileIndex=0;fileIndex<8;fileIndex++){
 
-    board.innerHTML = "";
+const file=String.fromCharCode(97+fileIndex),squareName=file+rank,square=document.createElement("div");
 
-    for (let rank = 8; rank >= 1; rank--) {
+square.className="square "+((fileIndex+rank)%2===0?"dark":"light");
 
-        for (
-            let fileIndex = 0;
-            fileIndex < 8;
-            fileIndex++
-        ) {
+if(squareName===selectedSquare)square.classList.add("selected");
 
-            const file =
-                String.fromCharCode(
-                    97 + fileIndex
-                );
+const piece=pieces[squareName];
+if(piece)square.innerHTML=pieceSVG[piece];
 
-            const squareName =
-                file + rank;
-
-            const square =
-                document.createElement("div");
-
-            square.className =
-                "square " +
-                (
-                    (fileIndex + rank) % 2 === 0
-                        ? "dark"
-                        : "light"
-                );
-
-            if (
-                squareName === selectedSquare
-            ) {
-
-                square.classList.add(
-                    "selected"
-                );
-            }
-
-            const piece =
-                pieces[squareName];
-
-            if (piece) {
-
-                square.innerHTML =
-                    pieceSVG[piece];
-            }
-
-            square.addEventListener(
-                "click",
-                () =>
-                    handleSquareClick(
-                        squareName
-                    )
-            );
-
-            board.appendChild(square);
-        }
-    }
+square.addEventListener("click",()=>handleSquareClick(squareName));
+board.appendChild(square);
+}
+}
 }
 
 
 /* =========================================================
-   MOVE FUNCTIONS
+   MOVES
 ========================================================= */
 
-function makeMoveOnPosition(
-    position,
-    from,
-    to
-) {
-
-    if (!position[from]) {
-        return;
-    }
-
-    position[to] =
-        position[from];
-
-    delete position[from];
-}
-
-
-function makeMove(from, to) {
-
-    makeMoveOnPosition(
-        pieces,
-        from,
-        to
-    );
-}
-
-
-/* =========================================================
-   CASTLING
-========================================================= */
-
-function castleOnPosition(
-    position,
-    from,
-    to
-) {
-
-    const king =
-        position[from];
-
-    if (!king) {
-        return;
-    }
-
-    const isWhite =
-        king === "wK";
-
-    const rank =
-        isWhite ? "1" : "8";
-
-    const kingside =
-        to === "g" + rank;
-
-    const queenside =
-        to === "c" + rank;
-
-    if (!kingside && !queenside) {
-        return;
-    }
-
-    const rookFrom =
-        kingside
-            ? "h" + rank
-            : "a" + rank;
-
-    const rookTo =
-        kingside
-            ? "f" + rank
-            : "d" + rank;
-
-    position[to] =
-        position[from];
-
-    delete position[from];
-
-    if (position[rookFrom]) {
-
-        position[rookTo] =
-            position[rookFrom];
-
-        delete position[rookFrom];
-    }
-}
-
-
-function castle(from, to) {
-
-    castleOnPosition(
-        pieces,
-        from,
-        to
-    );
-}
+function makeMove(from,to){makeMoveOnPosition(pieces,from,to)}
+function castle(from,to){castleOnPosition(pieces,from,to)}
 
 
 /* =========================================================
    OPENING LIBRARY
 ========================================================= */
 
-function renderOpeningLibrary() {
+function renderOpeningLibrary(){
+const container=document.getElementById("openingList");
+container.innerHTML="";
 
-    const container =
-        document.getElementById(
-            "openingList"
-        );
+Object.entries(OPENINGS).forEach(([id,opening])=>{
+const button=document.createElement("button");
+button.className="opening";
+if(id===currentOpeningId)button.classList.add("selected");
 
-    container.innerHTML = "";
+const learned=isOpeningLearned(id);
 
-    Object.entries(OPENINGS)
-        .forEach(([id, opening]) => {
+button.innerHTML=`<span class="opening-name">${escapeHTML(opening.name)}</span><span class="opening-meta">${escapeHTML(opening.difficulty)}</span>${learned?'<span class="learned-badge">Learned</span>':""}`;
 
-            const button =
-                document.createElement("button");
-
-            button.className =
-                "opening";
-
-            if (id === currentOpeningId) {
-
-                button.classList.add(
-                    "selected"
-                );
-            }
-
-            const learned =
-                isOpeningLearned(id);
-
-            button.innerHTML = `
-
-                <span class="opening-name">
-                    ${escapeHTML(opening.name)}
-                </span>
-
-                <span class="opening-meta">
-                    ${escapeHTML(opening.difficulty)}
-                </span>
-
-                ${
-                    learned
-                        ? `
-                            <span class="learned-badge">
-                                Learned
-                            </span>
-                          `
-                        : ""
-                }
-            `;
-
-            button.addEventListener(
-                "click",
-                () => selectOpening(id)
-            );
-
-            container.appendChild(button);
-        });
+button.addEventListener("click",()=>selectOpening(id));
+container.appendChild(button);
+});
 }
 
-
-function selectOpening(openingId) {
-
-    if (!OPENINGS[openingId]) {
-        return;
-    }
-
-    currentOpeningId =
-        openingId;
-
-    currentStage =
-        "intro";
-
-    currentStep =
-        0;
-
-    selectedSquare =
-        null;
-
-    inputLocked =
-        false;
-
-    wrongAttempts =
-        0;
-
-    loadCompletedStages();
-
-    resetLesson();
-
-    renderOpeningLibrary();
+function selectOpening(id){
+if(!OPENINGS[id])return;
+currentOpeningId=id;
+currentStage="intro";
+currentStep=0;
+selectedSquare=null;
+inputLocked=false;
+wrongAttempts=0;
+loadCompletedStages();
+resetLesson();
+renderOpeningLibrary();
 }
 
 
 /* =========================================================
-   OPENING HEADER
+   HEADER
 ========================================================= */
 
-function updateOpeningHeader() {
-
-    const opening =
-        getCurrentOpening();
-
-    document.getElementById(
-        "openingTitle"
-    ).textContent =
-        opening.name;
-
-    document.getElementById(
-        "openingDescription"
-    ).textContent =
-        opening.description;
-
-    document.getElementById(
-        "difficulty"
-    ).textContent =
-        opening.difficulty;
+function updateOpeningHeader(){
+const opening=getCurrentOpening();
+document.getElementById("openingTitle").textContent=opening.name;
+document.getElementById("openingDescription").textContent=opening.description;
+document.getElementById("difficulty").textContent=opening.difficulty;
 }
 
 
@@ -2079,106 +597,43 @@ function updateOpeningHeader() {
    MOVE INPUT
 ========================================================= */
 
-function handleSquareClick(squareName) {
+function handleSquareClick(squareName){
+if(inputLocked)return;
 
-    if (inputLocked) {
-        return;
-    }
+const step=getCurrentStep();
+if(!step)return;
 
-    const step =
-        getCurrentStep();
-
-    if (!step) {
-        return;
-    }
-
-
-    if (!selectedSquare) {
-
-        /*
-           Only allow selecting White pieces.
-        */
-
-        if (
-            pieces[squareName] &&
-            pieces[squareName].startsWith("w")
-        ) {
-
-            selectedSquare =
-                squareName;
-
-            renderBoard();
-        }
-
-        return;
-    }
-
-
-    if (
-        squareName === selectedSquare
-    ) {
-
-        selectedSquare =
-            null;
-
-        renderBoard();
-
-        return;
-    }
-
-
-    if (
-        selectedSquare === step.from &&
-        squareName === step.to
-    ) {
-
-        completeCurrentMove();
-
-    } else {
-
-        wrongAttempts++;
-
-        const feedback =
-            document.getElementById(
-                "feedback"
-            );
-
-        if (
-            step.tactic &&
-            wrongAttempts >= 2
-        ) {
-
-            feedback.textContent =
-                getTacticHint(step);
-
-        } else {
-
-            feedback.textContent =
-                "That's not the move we're looking for. Try again.";
-        }
-
-        feedback.className =
-            "feedback wrong";
-
-        selectedSquare =
-            null;
-
-        renderBoard();
-    }
+if(!selectedSquare){
+if(pieces[squareName]&&pieces[squareName].startsWith("w")){
+selectedSquare=squareName;
+renderBoard();
+}
+return;
 }
 
+if(squareName===selectedSquare){
+selectedSquare=null;
+renderBoard();
+return;
+}
 
-function getTacticHint(step) {
+if(selectedSquare===step.from&&squareName===step.to){
+completeCurrentMove();
+}else{
+wrongAttempts++;
+const feedback=document.getElementById("feedback");
 
-    if (step.tacticHint) {
+if(step.tactic&&wrongAttempts>=2)feedback.textContent=getTacticHint(step);
+else feedback.textContent="That's not the move we're looking for. Try again.";
 
-        return step.tacticHint;
-    }
+feedback.className="feedback wrong";
+selectedSquare=null;
+renderBoard();
+}
+}
 
-    return (
-        "Hint: look for a checking move " +
-        "that creates another threat."
-    );
+function getTacticHint(step){
+return step.tacticHint||"Hint: look for a checking move that creates another threat.";
 }
 
 
@@ -2186,52 +641,22 @@ function getTacticHint(step) {
    COMPLETE MOVE
 ========================================================= */
 
-function completeCurrentMove() {
+function completeCurrentMove(){
+const step=getCurrentStep();
+inputLocked=true;
+wrongAttempts=0;
 
-    const step =
-        getCurrentStep();
+if(step.special==="castle")castle(step.from,step.to);
+else makeMove(step.from,step.to);
 
-    inputLocked =
-        true;
+selectedSquare=null;
+renderBoard();
 
-    wrongAttempts =
-        0;
+const feedback=document.getElementById("feedback");
+feedback.textContent="Correct!";
+feedback.className="feedback correct";
 
-    if (step.special === "castle") {
-
-        castle(
-            step.from,
-            step.to
-        );
-
-    } else {
-
-        makeMove(
-            step.from,
-            step.to
-        );
-    }
-
-    selectedSquare =
-        null;
-
-    renderBoard();
-
-    const feedback =
-        document.getElementById(
-            "feedback"
-        );
-
-    feedback.textContent =
-        "Correct!";
-
-    feedback.className =
-        "feedback correct";
-
-    setTimeout(
-        () => advanceLesson(),
-        550
-    );
+setTimeout(()=>advanceLesson(),550);
 }
 
 
@@ -2239,120 +664,49 @@ function completeCurrentMove() {
    ADVANCE
 ========================================================= */
 
-function advanceLesson() {
+function advanceLesson(){
+currentStep++;
+inputLocked=false;
 
-    currentStep++;
+const steps=getStepsForStage(currentStage);
 
-    inputLocked =
-        false;
+if(currentStep>=steps.length){
+finishStage();
+return;
+}
 
-    const steps =
-        getStepsForStage(
-            currentStage
-        );
+enterStep();
+}
 
-    if (
-        currentStep >= steps.length
-    ) {
+function enterStep(){
+const step=getCurrentStep();
 
-        finishStage();
+if(step&&step.opponent)makeMove(step.opponent.from,step.opponent.to);
 
-        return;
-    }
-
-    enterStep();
+renderBoard();
+updateLesson();
 }
 
 
 /* =========================================================
-   ENTER STEP
+   LESSON DISPLAY
 ========================================================= */
 
-function enterStep() {
+function updateLesson(){
+const title=document.getElementById("lessonTitle"),text=document.getElementById("lessonText"),prompt=document.getElementById("movePrompt"),feedback=document.getElementById("feedback"),variationList=document.getElementById("variationList");
 
-    const step =
-        getCurrentStep();
+feedback.textContent="";
+feedback.className="feedback";
+variationList.classList.add("hidden");
+variationList.innerHTML="";
 
-    if (
-        step &&
-        step.opponent
-    ) {
+const step=getCurrentStep();
+if(!step)return;
 
-        makeMove(
-            step.opponent.from,
-            step.opponent.to
-        );
-    }
-
-    renderBoard();
-
-    updateLesson();
-}
-
-
-/* =========================================================
-   UPDATE LESSON
-========================================================= */
-
-function updateLesson() {
-
-    const title =
-        document.getElementById(
-            "lessonTitle"
-        );
-
-    const text =
-        document.getElementById(
-            "lessonText"
-        );
-
-    const prompt =
-        document.getElementById(
-            "movePrompt"
-        );
-
-    const feedback =
-        document.getElementById(
-            "feedback"
-        );
-
-    const variationList =
-        document.getElementById(
-            "variationList"
-        );
-
-
-    feedback.textContent =
-        "";
-
-    feedback.className =
-        "feedback";
-
-    variationList.classList.add(
-        "hidden"
-    );
-
-    variationList.innerHTML =
-        "";
-
-
-    const step =
-        getCurrentStep();
-
-    if (!step) {
-        return;
-    }
-
-    title.textContent =
-        step.title;
-
-    text.textContent =
-        step.text;
-
-    prompt.textContent =
-        step.prompt;
-
-    updateProgressBar();
+title.textContent=step.title;
+text.textContent=step.text;
+prompt.textContent=step.prompt;
+updateProgressBar();
 }
 
 
@@ -2360,454 +714,131 @@ function updateLesson() {
    PROGRESS
 ========================================================= */
 
-function getTotalStepCount() {
-
-    const opening =
-        getCurrentOpening();
-
-    let total =
-        opening.introSteps.length;
-
-    Object.values(
-        opening.variations
-    ).forEach(variation => {
-
-        total +=
-            variation.steps.length;
-    });
-
-    return total;
+function getTotalStepCount(){
+const opening=getCurrentOpening();
+let total=opening.introSteps.length;
+Object.values(opening.variations).forEach(v=>total+=v.steps.length);
+return total;
 }
 
+function getCompletedStepCount(){
+const stageOrder=getStageOrder();
+let completed=0;
 
-function getCompletedStepCount() {
-
-    const opening =
-        getCurrentOpening();
-
-    const stageOrder =
-        getStageOrder();
-
-    let completed =
-        0;
-
-    for (
-        let i = 0;
-        i < stageOrder.length;
-        i++
-    ) {
-
-        const stage =
-            stageOrder[i];
-
-        if (
-            stage === currentStage
-        ) {
-
-            completed +=
-                currentStep;
-
-            break;
-        }
-
-        completed +=
-            getStepsForStage(stage).length;
-    }
-
-    return completed;
+for(const stage of stageOrder){
+if(stage===currentStage){
+completed+=currentStep;
+break;
+}
+completed+=getStepsForStage(stage).length;
 }
 
+return completed;
+}
 
-function updateProgressBar() {
-
-    const progress =
-        document.getElementById(
-            "progressBar"
-        );
-
-    const total =
-        getTotalStepCount();
-
-    const completed =
-        getCompletedStepCount();
-
-    const percentage =
-        total > 0
-            ? completed / total * 100
-            : 0;
-
-    progress.style.width =
-        Math.min(
-            100,
-            percentage
-        ) + "%";
+function updateProgressBar(){
+const progress=document.getElementById("progressBar"),total=getTotalStepCount(),completed=getCompletedStepCount(),percentage=total>0?completed/total*100:0;
+progress.style.width=Math.min(100,percentage)+"%";
 }
 
 
 /* =========================================================
-   FINISH STAGE
+   FINISH STAGES
 ========================================================= */
 
-function finishStage() {
+function finishStage(){
+if(currentStage==="intro"){
+showIntroComplete();
+return;
+}
 
-    const stageOrder =
-        getStageOrder();
+completedStages.add(currentStage);
+saveCompletedStages();
+showVariationComplete(currentStage);
+}
 
-    const stageIndex =
-        stageOrder.indexOf(
-            currentStage
-        );
+function showIntroComplete(){
+const opening=getCurrentOpening(),title=document.getElementById("lessonTitle"),text=document.getElementById("lessonText"),prompt=document.getElementById("movePrompt"),feedback=document.getElementById("feedback");
 
-    if (
-        currentStage === "intro"
-    ) {
+feedback.textContent="";
+feedback.className="feedback";
+title.textContent=opening.name;
+text.textContent="You've reached the position that defines the opening. Now let's look at the major variations and ideas you need to know.";
+prompt.textContent="";
+updateProgressBar();
 
-        showIntroComplete();
+const stageOrder=getStageOrder(),nextStage=stageOrder[1];
 
-        return;
-    }
+if(nextStage)showContinueButton(nextStage);
+else finishOpening();
+}
 
-    completedStages.add(
-        currentStage
-    );
+function showVariationComplete(stage){
+const opening=getCurrentOpening(),variation=opening.variations[stage],title=document.getElementById("lessonTitle"),text=document.getElementById("lessonText"),prompt=document.getElementById("movePrompt"),feedback=document.getElementById("feedback");
 
-    saveCompletedStages();
+feedback.textContent="";
+feedback.className="feedback";
+title.textContent=variation.name+" complete";
+text.textContent=getVariationSummary(variation);
+updateProgressBar();
 
-    showVariationComplete(
-        currentStage
-    );
+const stageOrder=getStageOrder(),stageIndex=stageOrder.indexOf(stage),nextStage=stageOrder[stageIndex+1];
+
+if(nextStage){
+prompt.textContent="Continue to the next line.";
+showContinueButton(nextStage);
+}else finishOpening();
+}
+
+function finishOpening(){
+const opening=getCurrentOpening();
+markOpeningLearned(currentOpeningId);
+renderOpeningLibrary();
+
+const title=document.getElementById("lessonTitle"),text=document.getElementById("lessonText"),prompt=document.getElementById("movePrompt"),variationList=document.getElementById("variationList");
+
+title.textContent=opening.name+" learned ✓";
+
+text.innerHTML=`You've completed every lesson line for this opening.<div class="summary"><strong>Key ideas</strong><br><br>${opening.keyIdeas.map(idea=>"• "+escapeHTML(idea)).join("<br>")}</div>`;
+
+prompt.textContent="Opening learned ✓";
+variationList.classList.add("hidden");
+variationList.innerHTML="";
+updateProgressBar();
 }
 
 
 /* =========================================================
-   INTRO COMPLETE
+   CONTINUE
 ========================================================= */
 
-function showIntroComplete() {
+function showContinueButton(nextStage){
+const variationList=document.getElementById("variationList");
+variationList.classList.remove("hidden");
+variationList.innerHTML="";
 
-    const opening =
-        getCurrentOpening();
+const variation=getCurrentOpening().variations[nextStage];
+if(!variation)return;
 
-    const title =
-        document.getElementById(
-            "lessonTitle"
-        );
-
-    const text =
-        document.getElementById(
-            "lessonText"
-        );
-
-    const prompt =
-        document.getElementById(
-            "movePrompt"
-        );
-
-    const feedback =
-        document.getElementById(
-            "feedback"
-        );
-
-    feedback.textContent =
-        "";
-
-    feedback.className =
-        "feedback";
-
-    title.textContent =
-        opening.name;
-
-    text.textContent =
-        "You've reached the position that defines the opening. " +
-        "Now let's look at the major variations and ideas " +
-        "you need to know.";
-
-    prompt.textContent =
-        "";
-
-    updateProgressBar();
-
-    const stageOrder =
-        getStageOrder();
-
-    const nextStage =
-        stageOrder[1];
-
-    if (nextStage) {
-
-        showContinueButton(
-            nextStage
-        );
-
-    } else {
-
-        finishOpening();
-    }
+const button=document.createElement("button");
+button.className="variation-button";
+button.innerHTML=`<strong>Continue → ${escapeHTML(variation.name)}</strong><span>${escapeHTML(variation.description)}</span>`;
+button.addEventListener("click",()=>advanceToNextStage(nextStage));
+variationList.appendChild(button);
 }
 
-
-/* =========================================================
-   VARIATION COMPLETE
-========================================================= */
-
-function showVariationComplete(stage) {
-
-    const opening =
-        getCurrentOpening();
-
-    const variation =
-        opening.variations[stage];
-
-    const title =
-        document.getElementById(
-            "lessonTitle"
-        );
-
-    const text =
-        document.getElementById(
-            "lessonText"
-        );
-
-    const prompt =
-        document.getElementById(
-            "movePrompt"
-        );
-
-    const feedback =
-        document.getElementById(
-            "feedback"
-        );
-
-    feedback.textContent =
-        "";
-
-    feedback.className =
-        "feedback";
-
-    title.textContent =
-        variation.name +
-        " complete";
-
-    text.textContent =
-        getVariationSummary(
-            variation
-        );
-
-    updateProgressBar();
-
-    const stageOrder =
-        getStageOrder();
-
-    const stageIndex =
-        stageOrder.indexOf(stage);
-
-    const nextStage =
-        stageOrder[
-            stageIndex + 1
-        ];
-
-    if (nextStage) {
-
-        prompt.textContent =
-            "Continue to the next line.";
-
-        showContinueButton(
-            nextStage
-        );
-
-    } else {
-
-        finishOpening();
-    }
+function advanceToNextStage(nextStage){
+currentStage=nextStage;
+currentStep=0;
+selectedSquare=null;
+inputLocked=false;
+wrongAttempts=0;
+pieces=getPositionBeforeStage(nextStage);
+enterStep();
 }
 
-
-/* =========================================================
-   OPENING COMPLETE
-========================================================= */
-
-function finishOpening() {
-
-    const opening =
-        getCurrentOpening();
-
-    markOpeningLearned(
-        currentOpeningId
-    );
-
-    renderOpeningLibrary();
-
-    const title =
-        document.getElementById(
-            "lessonTitle"
-        );
-
-    const text =
-        document.getElementById(
-            "lessonText"
-        );
-
-    const prompt =
-        document.getElementById(
-            "movePrompt"
-        );
-
-    const variationList =
-        document.getElementById(
-            "variationList"
-        );
-
-    title.textContent =
-        opening.name +
-        " learned ✓";
-
-    text.innerHTML = `
-        You've completed every lesson line
-        for this opening.
-
-        <div class="summary">
-
-            <strong>Key ideas</strong>
-
-            <br><br>
-
-            ${opening.keyIdeas
-                .map(
-                    idea =>
-                        "• " +
-                        escapeHTML(idea)
-                )
-                .join("<br>")}
-
-        </div>
-    `;
-
-    prompt.textContent =
-        "Opening learned ✓";
-
-    variationList.classList.add(
-        "hidden"
-    );
-
-    variationList.innerHTML =
-        "";
-
-    updateProgressBar();
-}
-
-
-/* =========================================================
-   CONTINUE BUTTON
-========================================================= */
-
-function showContinueButton(nextStage) {
-
-    const variationList =
-        document.getElementById(
-            "variationList"
-        );
-
-    variationList.classList.remove(
-        "hidden"
-    );
-
-    variationList.innerHTML =
-        "";
-
-    const opening =
-        getCurrentOpening();
-
-    const variation =
-        opening.variations[
-            nextStage
-        ];
-
-    if (!variation) {
-        return;
-    }
-
-    const button =
-        document.createElement(
-            "button"
-        );
-
-    button.className =
-        "variation-button";
-
-    button.innerHTML = `
-        <strong>
-            Continue → ${escapeHTML(variation.name)}
-        </strong>
-
-        <span>
-            ${escapeHTML(variation.description)}
-        </span>
-    `;
-
-    button.addEventListener(
-        "click",
-        () =>
-            advanceToNextStage(
-                nextStage
-            )
-    );
-
-    variationList.appendChild(
-        button
-    );
-}
-
-
-/* =========================================================
-   ADVANCE TO NEXT STAGE
-========================================================= */
-
-function advanceToNextStage(
-    nextStage
-) {
-
-    currentStage =
-        nextStage;
-
-    currentStep =
-        0;
-
-    selectedSquare =
-        null;
-
-    inputLocked =
-        false;
-
-    wrongAttempts =
-        0;
-
-    /*
-       Every variation starts from the exact position
-       reached after the opening's intro.
-    */
-
-    pieces =
-        getPositionBeforeStage(
-            nextStage
-        );
-
-    enterStep();
-}
-
-
-/* =========================================================
-   VARIATION SUMMARY
-========================================================= */
-
-function getVariationSummary(
-    variation
-) {
-
-    if (variation.summary) {
-        return variation.summary;
-    }
-
-    return variation.description;
+function getVariationSummary(variation){
+return variation.summary||variation.description;
 }
 
 
@@ -2815,246 +846,100 @@ function getVariationSummary(
    HINT
 ========================================================= */
 
-document
-    .getElementById("hintButton")
-    .addEventListener(
-        "click",
-        () => {
+document.getElementById("hintButton").addEventListener("click",()=>{
+const step=getCurrentStep(),feedback=document.getElementById("feedback");
 
-            const step =
-                getCurrentStep();
+if(!step){
+feedback.textContent="Click Continue to move on.";
+return;
+}
 
-            const feedback =
-                document.getElementById(
-                    "feedback"
-                );
+if(step.tactic&&wrongAttempts>=1){
+feedback.textContent=getTacticHint(step);
+feedback.className="feedback";
+return;
+}
 
-            if (!step) {
-
-                feedback.textContent =
-                    "Click Continue to move on.";
-
-                return;
-            }
-
-            if (
-                step.tactic &&
-                wrongAttempts >= 1
-            ) {
-
-                feedback.textContent =
-                    getTacticHint(step);
-
-                feedback.className =
-                    "feedback";
-
-                return;
-            }
-
-            feedback.textContent =
-                "Hint: move the piece from " +
-                step.from.toUpperCase() +
-                " to " +
-                step.to.toUpperCase() +
-                ".";
-
-            feedback.className =
-                "feedback";
-        }
-    );
+feedback.textContent="Hint: move the piece from "+step.from.toUpperCase()+" to "+step.to.toUpperCase()+".";
+feedback.className="feedback";
+});
 
 
 /* =========================================================
    EXPLAIN FURTHER
 ========================================================= */
 
-document
-    .getElementById("explainButton")
-    .addEventListener(
-        "click",
-        () => {
+document.getElementById("explainButton").addEventListener("click",()=>{
+const step=getCurrentStep(),feedback=document.getElementById("feedback");
 
-            const step =
-                getCurrentStep();
+if(!step){
+feedback.textContent="This opening's main ideas are explained through the lesson lines and key ideas.";
+return;
+}
 
-            const feedback =
-                document.getElementById(
-                    "feedback"
-                );
-
-            if (!step) {
-
-                feedback.textContent =
-                    "This opening's main ideas are explained " +
-                    "through the lesson lines and key ideas.";
-
-                return;
-            }
-
-            feedback.textContent =
-                step.explanation ||
-                "This move fits the strategic ideas of the opening.";
-
-            feedback.className =
-                "feedback";
-        }
-    );
+feedback.textContent=step.explanation||"This move fits the strategic ideas of the opening.";
+feedback.className="feedback";
+});
 
 
 /* =========================================================
    REPERTOIRE
 ========================================================= */
 
-function updateRepertoire() {
+function updateRepertoire(){
+const container=document.getElementById("repertoireContent");
 
-    const container =
-        document.getElementById(
-            "repertoireContent"
-        );
+const learnedOpenings=Object.entries(OPENINGS).filter(([id])=>isOpeningLearned(id));
 
-    const learnedOpenings =
-        Object.entries(OPENINGS)
-            .filter(
-                ([id]) =>
-                    isOpeningLearned(id)
-            );
+if(learnedOpenings.length===0){
+container.innerHTML='<div class="placeholder">You have not learned any openings yet.</div>';
+return;
+}
 
-    if (
-        learnedOpenings.length === 0
-    ) {
+container.innerHTML="";
 
-        container.innerHTML = `
-            <div class="placeholder">
-                You have not learned any openings yet.
-            </div>
-        `;
+learnedOpenings.forEach(([id,opening])=>{
+const card=document.createElement("div");
+card.className="repertoire-card";
 
-        return;
-    }
+card.innerHTML=`<h3>${escapeHTML(opening.name)}</h3><p>Learned. You completed the lesson for this opening.</p><button class="primary" data-refresh="${escapeHTML(id)}">Refresh ${escapeHTML(opening.name)}</button>`;
 
-    container.innerHTML = "";
+card.querySelector("[data-refresh]").addEventListener("click",()=>{
+document.querySelector('[data-page="learn"]').click();
+selectOpening(id);
+});
 
-    learnedOpenings.forEach(
-        ([id, opening]) => {
-
-            const card =
-                document.createElement(
-                    "div"
-                );
-
-            card.className =
-                "repertoire-card";
-
-            card.innerHTML = `
-
-                <h3>
-                    ${escapeHTML(opening.name)}
-                </h3>
-
-                <p>
-                    Learned. You completed
-                    the lesson for this opening.
-                </p>
-
-                <button
-                    class="primary"
-                    data-refresh="${escapeHTML(id)}"
-                >
-                    Refresh ${escapeHTML(opening.name)}
-                </button>
-            `;
-
-            card
-                .querySelector(
-                    "[data-refresh]"
-                )
-                .addEventListener(
-                    "click",
-                    () => {
-
-                        document
-                            .querySelector(
-                                '[data-page="learn"]'
-                            )
-                            .click();
-
-                        selectOpening(id);
-                    }
-                );
-
-            container.appendChild(
-                card
-            );
-        }
-    );
+container.appendChild(card);
+});
 }
 
 
 /* =========================================================
-   RESET LESSON
+   RESET
 ========================================================= */
 
-function resetLesson() {
+function resetLesson(){
+const opening=getCurrentOpening();
 
-    const opening =
-        getCurrentOpening();
+pieces=clonePosition(opening.startingPosition||startingPosition);
+selectedSquare=null;
+inputLocked=false;
+currentStage="intro";
+currentStep=0;
+wrongAttempts=0;
 
-    pieces =
-        clonePosition(
-            opening.startingPosition ||
-            startingPosition
-        );
-
-    selectedSquare =
-        null;
-
-    inputLocked =
-        false;
-
-    currentStage =
-        "intro";
-
-    currentStep =
-        0;
-
-    wrongAttempts =
-        0;
-
-    updateOpeningHeader();
-
-    renderBoard();
-
-    enterStep();
+updateOpeningHeader();
+renderBoard();
+enterStep();
 }
 
 
 /* =========================================================
-   HTML ESCAPING
+   ESCAPE HTML
 ========================================================= */
 
-function escapeHTML(value) {
-
-    return String(value)
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-        .replace(
-            /</g,
-            "&lt;"
-        )
-        .replace(
-            />/g,
-            "&gt;"
-        )
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-        .replace(
-            /'/g,
-            "&#039;"
-        );
+function escapeHTML(value){
+return String(value).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
 }
 
 
@@ -3063,12 +948,9 @@ function escapeHTML(value) {
 ========================================================= */
 
 renderOpeningLibrary();
-
 loadCompletedStages();
-
 resetLesson();
 
 </script>
-
 </body>
 </html>
