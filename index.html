@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1002,7 +1001,49 @@ const completedBranches = new Set();
 
 
 /* =========================================================
-   CORE SCOTCH GAMBIT COURSE
+   STEP DATA FORMAT — read this before adding lines
+
+   Each step is one White move plus (optionally) Black's
+   reply to the PREVIOUS move. Steps run in array order.
+
+   {
+       title:   "Short heading shown above the text",
+       text:    "Explanation shown before the player moves.",
+       prompt:  "The instruction telling the player what to play.",
+
+       from:    "e2",   // square the White piece starts on
+       to:      "e4",   // square the player must move it to
+
+       special: "castle",   // ONLY for castling moves — omit otherwise.
+                             // For castling, `from`/`to` should still be
+                             // the king's from/to square (e1 -> g1 or c1).
+
+       opponent: {
+           from: "e7",   // Black's reply to the PREVIOUS step's move —
+           to:   "e5"    // applied automatically the moment THIS step
+       },                // is shown. Omit entirely if Black doesn't
+                          // have a scripted reply here (leave the whole
+                          // `opponent: {...}` block out, don't leave
+                          // placeholder squares).
+
+       tactic: true,     // ONLY on a step where the player must find a
+                          // tactic themselves (e.g. a fork/mate) rather
+                          // than just being told the move. Omit otherwise.
+
+       explanation: "Shown when the player clicks 'Explain Further'."
+   }
+
+   To add a new step to a line: copy one of the objects below,
+   paste it into the right `steps: [...]` array at the point in
+   the sequence it belongs, and fill in the fields. No other
+   code needs to change — the engine reads whatever is here.
+
+   To add a whole new variation: copy one of the objects inside
+   the `variations = { ... }` block below (e.g. copy `haxo: {...}`
+   and its closing comma), rename the key, and give it its own
+   `name`, `description`, and `steps` array. Then add that key
+   to `stageOrder` (search for "const stageOrder") in the order
+   you want it taught.
 ========================================================= */
 
 const introSteps = [
@@ -1134,44 +1175,18 @@ const variations = {
                     "e5 gains space and kicks the knight away. " +
                     "The important idea is to keep Black's pieces from " +
                     "settling comfortably."
-            },
-
-            {
-                title: "Keep developing",
-
-                text:
-                    "Black's knight has moved. Continue developing " +
-                    "instead of obsessing over the pawn on d4.",
-
-                prompt: "Castle kingside with O-O.",
-
-                from: "e1",
-                to: "g1",
-
-                special: "castle",
-
-                explanation:
-                    "Castling gets your king safe and connects your rook " +
-                    "to the attack. The gambit is about development, not " +
-                    "winning the pawn immediately."
-            },
-
-            {
-                title: "Bring the rook in",
-
-                text:
-                    "Your next attacking piece is the rook. Put it on e1, " +
-                    "where it supports your e-pawn and points toward Black's king.",
-
-                prompt: "Play Re1.",
-
-                from: "f1",
-                to: "e1",
-
-                explanation:
-                    "The rook belongs on the open or soon-to-be-open e-file. " +
-                    "This is a classic Scotch Gambit attacking setup."
             }
+
+            // Add your next step here, e.g.:
+            // ,
+            // {
+            //     title: "...",
+            //     text: "...",
+            //     prompt: "...",
+            //     from: "??", to: "??",
+            //     opponent: { from: "??", to: "??" },
+            //     explanation: "..."
+            // }
 
         ]
     },
@@ -1255,25 +1270,18 @@ const variations = {
                     "Qd5+ is a fork. The queen checks the king on f7 " +
                     "while also attacking the bishop on c5. After the king " +
                     "moves, White can take the bishop."
-            },
-
-            {
-                title: "The fork works",
-
-                text:
-                    "The queen has done its job: the king is in check " +
-                    "and the bishop on c5 is hanging.",
-
-                prompt: "Take the bishop with Qxc5.",
-
-                from: "d5",
-                to: "c5",
-
-                explanation:
-                    "White has recovered material while leaving Black's king " +
-                    "exposed. This is exactly the kind of tactical compensation " +
-                    "the Scotch Gambit is designed to create."
             }
+
+            // Add your next step here, e.g.:
+            // ,
+            // {
+            //     title: "...",
+            //     text: "...",
+            //     prompt: "...",
+            //     from: "??", to: "??",
+            //     opponent: { from: "??", to: "??" },
+            //     explanation: "..."
+            // }
 
         ]
     },
@@ -1334,24 +1342,18 @@ const variations = {
                     "e5 gains space and forces the f6-knight to react. " +
                     "This keeps the initiative instead of allowing Black " +
                     "to quietly consolidate."
-            },
-
-            {
-                title: "Keep the initiative",
-
-                text:
-                    "Black's knight is under pressure. Keep your pieces active " +
-                    "rather than spending several moves trying to recover d4.",
-
-                prompt: "Play Re1.",
-
-                from: "f1",
-                to: "e1",
-
-                explanation:
-                    "Re1 reinforces the center and puts another piece on the " +
-                    "e-file. The Scotch Gambit's compensation comes from activity."
             }
+
+            // Add your next step here, e.g.:
+            // ,
+            // {
+            //     title: "...",
+            //     text: "...",
+            //     prompt: "...",
+            //     from: "??", to: "??",
+            //     opponent: { from: "??", to: "??" },
+            //     explanation: "..."
+            // }
 
         ]
     }
@@ -1446,16 +1448,33 @@ function castleKingside() {
 
 
 /* =========================================================
+   STAGE ORDER
+
+   The Learn course is a fixed sequence: teach the shared
+   intro moves, then walk through the three variations in
+   order — Dubois-Réti first (it's the main line), then the
+   Haxo Gambit, then the h6 line. No branching menu; each
+   stage flows into the next automatically.
+========================================================= */
+
+const stageOrder = ["intro", "dubois", "haxo", "h6"];
+
+
+function getStepsForStage(stage) {
+
+    return stage === "intro"
+        ? introSteps
+        : variations[stage].steps;
+}
+
+
+/* =========================================================
    CURRENT STEP
 ========================================================= */
 
 function getCurrentStep() {
 
-    if (currentStage === "intro") {
-        return introSteps[currentStep];
-    }
-
-    return variations[currentStage].steps[currentStep];
+    return getStepsForStage(currentStage)[currentStep];
 }
 
 
@@ -1581,32 +1600,18 @@ function completeCurrentMove() {
 
 
     /*
-       Automatically make Black's scripted move.
+       Advance to the next step after a short pause.
+       Black's reply (if the upcoming step has one) is
+       applied when that step is entered, in enterStep() —
+       not here — so the board always matches what the
+       lesson text is narrating.
     */
 
-    if (step.opponent) {
+    setTimeout(() => {
 
-        setTimeout(() => {
+        advanceLesson();
 
-            makeMove(
-                step.opponent.from,
-                step.opponent.to
-            );
-
-            renderBoard();
-
-            advanceLesson();
-
-        }, 550);
-
-    } else {
-
-        setTimeout(() => {
-
-            advanceLesson();
-
-        }, 350);
-    }
+    }, 550);
 }
 
 
@@ -1619,6 +1624,46 @@ function advanceLesson() {
     currentStep++;
 
     inputLocked = false;
+
+    const steps =
+        getStepsForStage(currentStage);
+
+    if (currentStep >= steps.length) {
+
+        finishStage();
+
+        return;
+    }
+
+    enterStep();
+}
+
+
+/* =========================================================
+   ENTER STEP
+
+   Called whenever we move onto a new step (advancing
+   through a lesson, or starting a variation). If that
+   step has a scripted Black reply, it represents Black's
+   response to the PREVIOUS move — so it's applied here,
+   before the step's text/prompt is shown. This keeps the
+   board in sync with what the lesson is narrating.
+========================================================= */
+
+function enterStep() {
+
+    const step =
+        getCurrentStep();
+
+    if (step && step.opponent) {
+
+        makeMove(
+            step.opponent.from,
+            step.opponent.to
+        );
+    }
+
+    renderBoard();
 
     updateLesson();
 }
@@ -1642,9 +1687,6 @@ function updateLesson() {
     const feedback =
         document.getElementById("feedback");
 
-    const progress =
-        document.getElementById("progressBar");
-
     const variationList =
         document.getElementById("variationList");
 
@@ -1656,71 +1698,8 @@ function updateLesson() {
     variationList.innerHTML = "";
 
 
-    /*
-       INTRO
-    */
-
-    if (currentStage === "intro") {
-
-        if (currentStep >= introSteps.length) {
-
-            title.textContent =
-                "The Scotch Gambit";
-
-            text.innerHTML =
-                "You've reached the position that defines the opening. " +
-                "Instead of immediately recovering the d4-pawn, White uses " +
-                "rapid development and tactical pressure as compensation.";
-
-            prompt.textContent =
-                "Now choose a variation to study.";
-
-            showVariationButtons();
-
-            progress.style.width =
-                "50%";
-
-            return;
-        }
-
-        const step =
-            introSteps[currentStep];
-
-        title.textContent =
-            step.title;
-
-        text.textContent =
-            step.text;
-
-        prompt.textContent =
-            step.prompt;
-
-        progress.style.width =
-            ((currentStep / introSteps.length) * 50) + "%";
-
-        return;
-    }
-
-
-    /*
-       VARIATION
-    */
-
-    const variation =
-        variations[currentStage];
-
-    if (
-        currentStep >= variation.steps.length
-    ) {
-
-        finishVariation();
-
-        return;
-    }
-
-
     const step =
-        variation.steps[currentStep];
+        getCurrentStep();
 
     title.textContent =
         step.title;
@@ -1731,24 +1710,187 @@ function updateLesson() {
     prompt.textContent =
         step.prompt;
 
-    /*
-       Second half of the course occupies
-       50% of the progress bar.
-    */
-
-    const branchProgress =
-        currentStep / variation.steps.length;
-
-    progress.style.width =
-        (50 + branchProgress * 50) + "%";
+    updateProgressBar();
 }
 
 
 /* =========================================================
-   VARIATION BUTTONS
+   PROGRESS BAR
+
+   Each stage (intro, then each of the three variations)
+   counts as an equal slice of the overall course.
 ========================================================= */
 
-function showVariationButtons() {
+function updateProgressBar() {
+
+    const progress =
+        document.getElementById("progressBar");
+
+    const stageIndex =
+        stageOrder.indexOf(currentStage);
+
+    const steps =
+        getStepsForStage(currentStage);
+
+    const fractionWithinStage =
+        steps.length
+            ? currentStep / steps.length
+            : 0;
+
+    const overall =
+        (stageIndex + fractionWithinStage) /
+        stageOrder.length *
+        100;
+
+    progress.style.width =
+        overall + "%";
+}
+
+
+/* =========================================================
+   FINISH STAGE
+
+   Called when the current stage (intro or a variation) runs
+   out of steps. Shows a short summary and, unless this was
+   the last stage, a single "Continue" button into the next
+   one. The course is linear: intro -> Dubois-Réti -> Haxo ->
+   h6 -> done.
+========================================================= */
+
+function finishStage() {
+
+    if (currentStage === "intro") {
+
+        showIntroComplete();
+
+    } else {
+
+        completedBranches.add(currentStage);
+
+        saveProgress();
+
+        showVariationComplete(currentStage);
+    }
+}
+
+
+/* =========================================================
+   INTRO COMPLETE
+========================================================= */
+
+function showIntroComplete() {
+
+    const title =
+        document.getElementById("lessonTitle");
+
+    const text =
+        document.getElementById("lessonText");
+
+    const prompt =
+        document.getElementById("movePrompt");
+
+    const feedback =
+        document.getElementById("feedback");
+
+    feedback.textContent = "";
+    feedback.className = "feedback";
+
+    title.textContent =
+        "The Scotch Gambit";
+
+    text.textContent =
+        "You've reached the position that defines the opening. " +
+        "Instead of immediately recovering the d4-pawn, White uses " +
+        "rapid development and tactical pressure as compensation. " +
+        "Now let's see how Black usually responds, starting with " +
+        "the main line.";
+
+    prompt.textContent = "";
+
+    updateProgressBar();
+
+    showContinueButton(stageOrder[1]);
+}
+
+
+/* =========================================================
+   VARIATION COMPLETE
+========================================================= */
+
+function showVariationComplete(stage) {
+
+    const title =
+        document.getElementById("lessonTitle");
+
+    const text =
+        document.getElementById("lessonText");
+
+    const prompt =
+        document.getElementById("movePrompt");
+
+    const feedback =
+        document.getElementById("feedback");
+
+    feedback.textContent = "";
+    feedback.className = "feedback";
+
+    title.textContent =
+        variations[stage].name +
+        " complete";
+
+    text.innerHTML =
+        getVariationSummary(stage);
+
+    updateProgressBar();
+
+    const stageIndex =
+        stageOrder.indexOf(stage);
+
+    const nextStage =
+        stageOrder[stageIndex + 1];
+
+    if (nextStage) {
+
+        prompt.textContent =
+            "Continue to the next line.";
+
+        showContinueButton(nextStage);
+
+    } else {
+
+        markOpeningLearned();
+
+        text.innerHTML += `
+            <div class="summary">
+                <strong>Key Scotch Gambit ideas</strong><br><br>
+
+                • Develop quickly instead of obsessing over material.<br>
+                • Use checks and threats to make Black spend time defending.<br>
+                • Keep your king safe while maintaining the initiative.<br>
+                • Look for tactical opportunities created by Black's exposed king.
+            </div>
+        `;
+
+        prompt.textContent =
+            "Scotch Gambit learned ✓";
+
+        const variationList =
+            document.getElementById("variationList");
+
+        variationList.classList.add("hidden");
+
+        variationList.innerHTML = "";
+    }
+}
+
+
+/* =========================================================
+   CONTINUE BUTTON
+
+   A single card pointing at the next stage in the sequence.
+========================================================= */
+
+function showContinueButton(nextStage) {
 
     const variationList =
         document.getElementById("variationList");
@@ -1757,47 +1899,41 @@ function showVariationButtons() {
 
     variationList.innerHTML = "";
 
-    Object.entries(variations).forEach(
-        ([key, variation]) => {
+    const variation =
+        variations[nextStage];
 
-            const button =
-                document.createElement("button");
+    const button =
+        document.createElement("button");
 
-            button.className =
-                "variation-button";
+    button.className =
+        "variation-button";
 
-            const completed =
-                completedBranches.has(key);
+    button.innerHTML = `
+        <strong>
+            Continue → ${variation.name}
+        </strong>
 
-            button.innerHTML = `
-                <strong>
-                    ${variation.name}
-                    ${completed ? " ✓" : ""}
-                </strong>
+        <span>
+            ${variation.description}
+        </span>
+    `;
 
-                <span>
-                    ${variation.description}
-                </span>
-            `;
-
-            button.addEventListener(
-                "click",
-                () => startVariation(key)
-            );
-
-            variationList.appendChild(button);
-        }
+    button.addEventListener(
+        "click",
+        () => advanceToNextStage(nextStage)
     );
+
+    variationList.appendChild(button);
 }
 
 
 /* =========================================================
-   START VARIATION
+   ADVANCE TO NEXT STAGE
 ========================================================= */
 
-function startVariation(key) {
+function advanceToNextStage(nextStage) {
 
-    currentStage = key;
+    currentStage = nextStage;
 
     currentStep = 0;
 
@@ -1810,13 +1946,12 @@ function startVariation(key) {
     /*
        Rebuild the position after
        1.e4 e5 2.Nf3 Nc6 3.d4 exd4 4.Bc4
+       — each variation branches from here.
     */
 
     resetToScotchPosition();
 
-    updateLesson();
-
-    renderBoard();
+    enterStep();
 }
 
 
@@ -1840,73 +1975,6 @@ function resetToScotchPosition() {
     makeMove("e5", "d4");
 
     makeMove("f1", "c4");
-}
-
-
-/* =========================================================
-   FINISH VARIATION
-========================================================= */
-
-function finishVariation() {
-
-    completedBranches.add(currentStage);
-
-    const title =
-        document.getElementById("lessonTitle");
-
-    const text =
-        document.getElementById("lessonText");
-
-    const prompt =
-        document.getElementById("movePrompt");
-
-    const feedback =
-        document.getElementById("feedback");
-
-    const progress =
-        document.getElementById("progressBar");
-
-    title.textContent =
-        variations[currentStage].name +
-        " complete";
-
-    text.textContent =
-        getVariationSummary(currentStage);
-
-    prompt.textContent =
-        completedBranches.size === 3
-            ? "You've completed the Scotch Gambit course."
-            : "Choose another variation to continue.";
-
-    feedback.textContent = "";
-
-    progress.style.width =
-        "100%";
-
-    saveProgress();
-
-    if (completedBranches.size === 3) {
-
-        markOpeningLearned();
-
-        text.innerHTML += `
-            <div class="summary">
-                <strong>Key Scotch Gambit ideas</strong><br><br>
-
-                • Develop quickly instead of obsessing over material.<br>
-                • Use checks and threats to make Black spend time defending.<br>
-                • Keep your king safe while maintaining the initiative.<br>
-                • Look for tactical opportunities created by Black's exposed king.
-            </div>
-        `;
-
-        prompt.textContent =
-            "Scotch Gambit learned ✓";
-
-    } else {
-
-        showVariationButtons();
-    }
 }
 
 
@@ -1962,7 +2030,7 @@ document
         if (!step) {
 
             document.getElementById("feedback").textContent =
-                "Choose a variation to continue.";
+                "Click Continue to move on.";
 
             return;
         }
@@ -2181,9 +2249,7 @@ function resetLesson() {
 
     wrongAttempts = 0;
 
-    updateLesson();
-
-    renderBoard();
+    enterStep();
 }
 
 
