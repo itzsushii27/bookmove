@@ -2,532 +2,574 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chess Opening Trainer</title>
+
 <style>
-*{box-sizing:border-box}
-:root{--bg:#111315;--panel:#1b1e21;--panel-2:#22262a;--border:#34393e;--text:#f2f2f2;--muted:#a6abb0;--muted-2:#777d83;--button:#292e33;--button-hover:#353b41;--accent:#d8d8d8;--good:#55c878;--bad:#ef6262;--board-light:#f0d9b5;--board-dark:#b58863}
-body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--text)}
-button{font:inherit}
-header{background:#090a0b;color:white;padding:18px 24px 0;border-bottom:1px solid var(--border)}
-header h1{max-width:1250px;margin:0 auto 16px;font-size:24px}
-.tabs{display:flex;gap:6px;max-width:1250px;margin:auto}
-.tab{border:0;background:transparent;color:#777;padding:12px 20px;cursor:pointer;border-bottom:3px solid transparent}
-.tab:hover{color:#bbb}.tab.active{color:white;border-bottom-color:white}
-main{max-width:1250px;margin:auto;padding:28px 20px 50px}
-.page{display:none}.page.active{display:block}
-.page-header{margin-bottom:24px}.page-header h2{margin:0 0 7px;font-size:28px}.page-header p{margin:0;color:var(--muted)}
-.learn-layout{display:grid;grid-template-columns:230px minmax(0,1fr);gap:20px;align-items:start}
-.panel{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:18px}
-.panel h3{margin:0 0 14px}
-.opening-list{display:flex;flex-direction:column;gap:8px}
-.opening{width:100%;text-align:left;border:1px solid var(--border);background:var(--panel-2);color:var(--text);border-radius:7px;padding:12px;cursor:pointer}
-.opening:hover,.opening.selected{background:var(--button-hover);border-color:#666}.opening:disabled{cursor:default;opacity:.55}
-.opening-name{display:block;font-weight:bold;margin-bottom:4px}.opening-meta{color:var(--muted);font-size:13px}
-.learned-badge{display:inline-block;margin-top:7px;padding:3px 7px;border-radius:999px;background:#30353a;color:#ccc;font-size:11px;font-weight:bold}
-.lesson-top{display:flex;justify-content:space-between;gap:15px;margin-bottom:18px}.lesson-top h3{margin:0 0 6px;font-size:24px}
-.difficulty{border:1px solid var(--border);border-radius:999px;padding:4px 9px;font-size:12px;color:var(--muted);height:fit-content;white-space:nowrap}
-.board-area{display:grid;grid-template-columns:520px minmax(400px,1fr);gap:28px;align-items:start}
-.board-wrapper{width:520px}
-.board{width:520px;height:520px;display:grid;grid-template-columns:repeat(8,65px);grid-template-rows:repeat(8,65px);border:2px solid #080808;overflow:hidden}
-.square{width:65px;height:65px;position:relative;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none}
-.square.light{background:var(--board-light)}.square.dark{background:var(--board-dark)}
-.square.selected{outline:4px solid #555;outline-offset:-4px}
-.piece{width:84%;height:84%;display:block;pointer-events:none;user-select:none}
-.lesson-content{min-height:330px}.lesson-content h4{margin:0 0 10px;font-size:18px}
-.lesson-text{line-height:1.55;color:#d1d4d7;margin-bottom:18px}
-.move-prompt{background:var(--panel-2);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:14px;font-weight:bold}
-.feedback{min-height:42px;margin-bottom:12px;font-size:14px;line-height:1.45}.feedback.correct{color:var(--good)}.feedback.wrong{color:var(--bad)}
-.controls{display:flex;flex-wrap:wrap;gap:8px}
-.primary,.secondary,.variation-button{border-radius:7px;padding:10px 15px;cursor:pointer}
-.primary{border:0;background:#eee;color:#111}.primary:hover{background:#fff}
-.secondary{border:1px solid var(--border);background:var(--button);color:var(--text)}.secondary:hover{background:var(--button-hover)}
-.variation-list{display:grid;gap:9px;margin-top:16px}.variation-button{border:1px solid var(--border);background:var(--panel-2);color:var(--text);text-align:left}
-.variation-button:hover,.variation-button.selected{background:var(--button-hover);border-color:#777}
-.variation-button strong{display:block;margin-bottom:3px}.variation-button span{color:var(--muted);font-size:12px}
-.progress{width:520px;height:6px;background:#303438;border-radius:999px;overflow:hidden;margin-top:20px}.progress-bar{height:100%;width:0%;background:#aaa;transition:width .25s ease}
-.summary{background:var(--panel-2);border:1px solid var(--border);border-radius:8px;padding:14px;margin-top:15px;line-height:1.55}
-.hidden{display:none!important}.placeholder{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:30px;color:var(--muted)}
-.repertoire-card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:12px}.repertoire-card h3{margin:0 0 7px}.repertoire-card p{color:var(--muted);margin:0 0 14px}
-@media(max-width:1050px){.board-area{grid-template-columns:520px 1fr}.lesson-content{min-width:0}}
-@media(max-width:850px){.learn-layout{grid-template-columns:1fr}.board-area{grid-template-columns:1fr}.board-wrapper{width:520px;max-width:100%;overflow-x:auto}.lesson-content{min-width:0}}
-@media(max-width:600px){main{padding-left:12px;padding-right:12px}header{padding-left:12px;padding-right:12px}.tabs{overflow-x:auto}.board-wrapper{width:100%}}
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #f3f4f6;
+        color: #171717;
+    }
+
+    button {
+        font: inherit;
+    }
+
+    header {
+        background: #171717;
+        color: white;
+        padding: 18px 24px 0;
+    }
+
+    header h1 {
+        margin: 0 0 16px;
+        font-size: 24px;
+    }
+
+    .tabs {
+        display: flex;
+        gap: 6px;
+        max-width: 1000px;
+        margin: auto;
+    }
+
+    .tab {
+        border: 0;
+        background: transparent;
+        color: #aaa;
+        padding: 12px 20px;
+        cursor: pointer;
+        border-bottom: 3px solid transparent;
+    }
+
+    .tab.active {
+        color: white;
+        border-bottom-color: white;
+    }
+
+    main {
+        max-width: 1000px;
+        margin: auto;
+        padding: 28px 20px 50px;
+    }
+
+    .page {
+        display: none;
+    }
+
+    .page.active {
+        display: block;
+    }
+
+    .page-header {
+        margin-bottom: 24px;
+    }
+
+    .page-header h2 {
+        margin: 0 0 7px;
+        font-size: 28px;
+    }
+
+    .page-header p {
+        margin: 0;
+        color: #666;
+    }
+
+    .learn-layout {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 20px;
+    }
+
+    .panel {
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 18px;
+    }
+
+    .panel h3 {
+        margin: 0 0 14px;
+    }
+
+    .opening-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        max-height: 600px;
+        overflow-y: auto;
+    }
+
+    .opening-category {
+        font-size: 11px;
+        font-weight: bold;
+        text-transform: uppercase;
+        color: #888;
+        margin: 10px 0 4px;
+        letter-spacing: 0.5px;
+    }
+
+    .opening-category:first-child {
+        margin-top: 0;
+    }
+
+    .opening {
+        width: 100%;
+        text-align: left;
+        border: 1px solid #ddd;
+        background: #fafafa;
+        border-radius: 7px;
+        padding: 12px;
+        cursor: pointer;
+    }
+
+    .opening:hover,
+    .opening.selected {
+        background: #eee;
+        border-color: #999;
+    }
+
+    .opening-name {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 4px;
+    }
+
+    .opening-meta {
+        color: #777;
+        font-size: 13px;
+    }
+
+    .learned-badge {
+        display: inline-block;
+        margin-top: 7px;
+        padding: 3px 7px;
+        border-radius: 999px;
+        background: #176b35;
+        color: white;
+        font-size: 11px;
+        font-weight: bold;
+    }
+
+    .lesson-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 15px;
+        margin-bottom: 18px;
+    }
+
+    .lesson-top h3 {
+        margin: 0 0 6px;
+        font-size: 24px;
+    }
+
+    .difficulty {
+        border: 1px solid #ccc;
+        border-radius: 999px;
+        padding: 4px 9px;
+        font-size: 12px;
+        color: #666;
+        height: fit-content;
+        white-space: nowrap;
+    }
+
+    .board-area {
+        display: grid;
+        grid-template-columns: minmax(280px, 520px) 1fr;
+        gap: 22px;
+        align-items: start;
+    }
+
+    .board {
+        width: 100%;
+        max-width: 520px;
+        aspect-ratio: 1 / 1;
+        display: grid;
+        grid-template-columns: repeat(8, minmax(0, 1fr));
+        grid-template-rows: repeat(8, minmax(0, 1fr));
+        border: 2px solid #222;
+        overflow: hidden;
+    }
+
+    .square {
+        width: 100%;
+        height: 100%;
+        min-width: 0;
+        min-height: 0;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .square.light {
+        background: #f0d9b5;
+    }
+
+    .square.dark {
+        background: #b58863;
+    }
+
+    .square.selected {
+        outline: 4px solid #555;
+        outline-offset: -4px;
+    }
+
+    .piece {
+        width: 84%;
+        height: 84%;
+        display: block;
+        pointer-events: none;
+        user-select: none;
+    }
+
+    .lesson-content {
+        min-height: 330px;
+    }
+
+    .lesson-content h4 {
+        margin: 0 0 10px;
+        font-size: 18px;
+    }
+
+    .lesson-text {
+        line-height: 1.55;
+        color: #333;
+        margin-bottom: 18px;
+    }
+
+    .move-prompt {
+        background: #f1f1f1;
+        border-radius: 8px;
+        padding: 14px;
+        margin-bottom: 14px;
+        font-weight: bold;
+    }
+
+    .feedback {
+        min-height: 42px;
+        margin-bottom: 12px;
+        font-size: 14px;
+        line-height: 1.45;
+    }
+
+    .feedback.correct {
+        color: #176b35;
+    }
+
+    .feedback.wrong {
+        color: #9a2525;
+    }
+
+    .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .primary,
+    .secondary,
+    .variation-button {
+        border-radius: 7px;
+        padding: 10px 15px;
+        cursor: pointer;
+    }
+
+    .primary {
+        border: 0;
+        background: #222;
+        color: white;
+    }
+
+    .secondary {
+        border: 1px solid #ccc;
+        background: white;
+    }
+
+    .variation-list {
+        display: grid;
+        gap: 9px;
+        margin-top: 16px;
+    }
+
+    .variation-button {
+        border: 1px solid #ccc;
+        background: #fafafa;
+        text-align: left;
+    }
+
+    .variation-button:hover,
+    .variation-button.selected {
+        background: #eee;
+        border-color: #888;
+    }
+
+    .variation-button strong {
+        display: block;
+        margin-bottom: 3px;
+    }
+
+    .variation-button span {
+        color: #777;
+        font-size: 12px;
+    }
+
+    .progress {
+        height: 6px;
+        background: #e5e5e5;
+        border-radius: 999px;
+        overflow: hidden;
+        margin-top: 20px;
+    }
+
+    .progress-bar {
+        height: 100%;
+        width: 0%;
+        background: #555;
+        transition: width .25s ease;
+    }
+
+    .summary {
+        background: #f5f5f5;
+        border-radius: 8px;
+        padding: 14px;
+        margin-top: 15px;
+        line-height: 1.55;
+    }
+
+    .hidden {
+        display: none !important;
+    }
+
+    .placeholder {
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 30px;
+        color: #666;
+    }
+
+    .repertoire-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 16px;
+    }
+
+    .repertoire-card {
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 18px;
+    }
+
+    .repertoire-card h3 {
+        margin: 0 0 7px;
+    }
+
+    .repertoire-card p {
+        color: #666;
+        margin: 0 0 14px;
+    }
+
+    @media (max-width: 750px) {
+        .learn-layout,
+        .board-area {
+            grid-template-columns: 1fr;
+        }
+
+        main {
+            padding-left: 12px;
+            padding-right: 12px;
+        }
+
+        .board {
+            max-width: 100%;
+        }
+    }
 </style>
 </head>
+
 <body>
 
 <header>
-<h1>Chess Opening Trainer</h1>
-<nav class="tabs">
-<button class="tab" data-page="practice">Practice</button>
-<button class="tab active" data-page="learn">Learn</button>
-<button class="tab" data-page="repertoire">Repertoire</button>
-</nav>
+    <h1>Chess Opening Trainer</h1>
+
+    <nav class="tabs">
+        <button class="tab" data-page="practice">Practice</button>
+        <button class="tab active" data-page="learn">Learn</button>
+        <button class="tab" data-page="repertoire">Repertoire</button>
+    </nav>
 </header>
 
 <main>
 
-<section id="practice" class="page">
-<div class="page-header"><h2>Practice</h2><p>Practice openings against practical, rating-based responses.</p></div>
-<div class="placeholder">Practice mode will be built after Learn.</div>
-</section>
+    <!-- PRACTICE -->
+    <section id="practice" class="page">
+        <div class="page-header">
+            <h2>Practice</h2>
+            <p>Practice openings against practical, rating-based responses.</p>
+        </div>
+        <div class="placeholder">
+            Practice mode will be built after Learn.
+        </div>
+    </section>
 
-<section id="learn" class="page active">
-<div class="page-header"><h2>Learn</h2><p>Learn openings through guided play, explanations, variations, and tactics.</p></div>
-<div class="learn-layout">
+    <!-- LEARN -->
+    <section id="learn" class="page active">
+        <div class="page-header">
+            <h2>Learn</h2>
+            <p>Learn openings through guided play, explanations, and key variations.</p>
+        </div>
 
-<aside class="panel">
-<h3>Opening Library</h3>
-<div id="openingList" class="opening-list"></div>
-</aside>
+        <div class="learn-layout">
 
-<section class="panel">
-<div id="lesson">
+            <aside class="panel">
+                <h3>Opening Library</h3>
+                <div id="openingList" class="opening-list"></div>
+            </aside>
 
-<div class="lesson-top">
-<div><h3 id="openingTitle"></h3><div id="openingDescription" class="opening-meta"></div></div>
-<span id="difficulty" class="difficulty"></span>
-</div>
+            <section class="panel">
+                <div id="lessonArea">
+                    <div class="lesson-top">
+                        <div>
+                            <h3 id="openingTitle">Opening Name</h3>
+                            <div id="openingMeta" class="opening-meta">Opening description</div>
+                        </div>
+                        <span id="difficultyBadge" class="difficulty">Difficulty</span>
+                    </div>
 
-<div class="board-area">
-<div class="board-wrapper">
-<div id="board" class="board"></div>
-<div class="progress"><div id="progressBar" class="progress-bar"></div></div>
-</div>
+                    <div class="board-area">
+                        <div>
+                            <div id="board" class="board"></div>
+                            <div class="progress">
+                                <div id="progressBar" class="progress-bar"></div>
+                            </div>
+                        </div>
 
-<div class="lesson-content">
-<h4 id="lessonTitle"></h4>
-<div id="lessonText" class="lesson-text"></div>
-<div id="movePrompt" class="move-prompt"></div>
-<div id="feedback" class="feedback"></div>
-<div id="variationList" class="variation-list hidden"></div>
-<div class="controls">
-<button id="hintButton" class="secondary">Hint</button>
-<button id="explainButton" class="secondary">Explain Further</button>
-</div>
-</div>
-</div>
+                        <div class="lesson-content">
+                            <h4 id="lessonTitle">Let's begin.</h4>
+                            <div id="lessonText" class="lesson-text">Select an opening to start learning.</div>
+                            <div id="movePrompt" class="move-prompt">Prompt move here.</div>
+                            <div id="feedback" class="feedback"></div>
+                            <div id="variationList" class="variation-list hidden"></div>
 
-</div>
-</section>
+                            <div class="controls">
+                                <button id="hintButton" class="secondary">Hint</button>
+                                <button id="explainButton" class="secondary">Explain Further</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-</div>
-</section>
+        </div>
+    </section>
 
-<section id="repertoire" class="page">
-<div class="page-header"><h2>Repertoire</h2><p>Your learned openings and quick refreshers.</p></div>
-<div id="repertoireContent"></div>
-</section>
+    <!-- REPERTOIRE -->
+    <section id="repertoire" class="page">
+        <div class="page-header">
+            <h2>Repertoire</h2>
+            <p>Your learned openings and quick refreshers.</p>
+        </div>
+        <div id="repertoireContent"></div>
+    </section>
 
 </main>
 
 <script>
 
 /* =========================================================
-   TABS
+   OPENINGS DATABASE
 ========================================================= */
-
-const tabs=document.querySelectorAll(".tab"),pages=document.querySelectorAll(".page");
-tabs.forEach(tab=>{tab.addEventListener("click",()=>{const target=tab.dataset.page;tabs.forEach(t=>t.classList.remove("active"));pages.forEach(p=>p.classList.remove("active"));tab.classList.add("active");document.getElementById(target).classList.add("active");if(target==="repertoire")updateRepertoire()})});
-
-
-/* =========================================================
-   PIECE ART
-   DO NOT CHANGE THIS SECTION WHEN ADDING OPENINGS.
-========================================================= */
-
-const pieceSVG={
-wP:`<svg class="piece" viewBox="0 0 100 100"><g fill="#fff" stroke="#222" stroke-width="3" stroke-linejoin="round"><circle cx="50" cy="27" r="13"/><path d="M38 43 C40 38 60 38 62 43 L68 65 L76 79 L24 79 L32 65 Z"/><path d="M21 82 L79 82 L83 91 L17 91 Z"/></g></svg>`,
-bP:`<svg class="piece" viewBox="0 0 100 100"><g fill="#222" stroke="#eee" stroke-width="3" stroke-linejoin="round"><circle cx="50" cy="27" r="13"/><path d="M38 43 C40 38 60 38 62 43 L68 65 L76 79 L24 79 L32 65 Z"/><path d="M21 82 L79 82 L83 91 L17 91 Z"/></g></svg>`,
-
-wN:`<svg class="piece" viewBox="0 0 100 100"><g fill="#fff" stroke="#222" stroke-width="3" stroke-linejoin="round"><path d="M22 82 L29 68 L29 53 C29 43 34 32 43 25 L39 15 L54 20 L64 14 L69 23 L84 28 L78 38 L64 40 C69 48 71 56 69 65 L79 82 Z"/><path d="M17 85 L82 85 L85 92 L14 92 Z"/></g><circle cx="69" cy="29" r="3" fill="#222"/></svg>`,
-bN:`<svg class="piece" viewBox="0 0 100 100"><g fill="#222" stroke="#eee" stroke-width="3" stroke-linejoin="round"><path d="M22 82 L29 68 L29 53 C29 43 34 32 43 25 L39 15 L54 20 L64 14 L69 23 L84 28 L78 38 L64 40 C69 48 71 56 69 65 L79 82 Z"/><path d="M17 85 L82 85 L85 92 L14 92 Z"/></g><circle cx="69" cy="29" r="3" fill="#eee"/></svg>`,
-
-wB:`<svg class="piece" viewBox="0 0 100 100"><g fill="#fff" stroke="#222" stroke-width="3" stroke-linejoin="round"><path d="M50 12 L60 24 L56 38 C64 48 69 59 67 68 L76 82 L24 82 L33 68 C31 59 36 48 44 38 L40 24 Z"/><path d="M19 86 L81 86 L84 92 L16 92 Z"/></g><path d="M49 19 L53 31 L48 42" stroke="#222" stroke-width="3" fill="none"/></svg>`,
-bB:`<svg class="piece" viewBox="0 0 100 100"><g fill="#222" stroke="#eee" stroke-width="3" stroke-linejoin="round"><path d="M50 12 L60 24 L56 38 C64 48 69 59 67 68 L76 82 L24 82 L33 68 C31 59 36 48 44 38 L40 24 Z"/><path d="M19 86 L81 86 L84 92 L16 92 Z"/></g><path d="M49 19 L53 31 L48 42" stroke="#eee" stroke-width="3" fill="none"/></svg>`,
-
-wR:`<svg class="piece" viewBox="0 0 100 100"><g fill="#fff" stroke="#222" stroke-width="3" stroke-linejoin="round"><path d="M27 18 L39 18 L39 28 L47 28 L47 18 L53 18 L53 28 L61 28 L61 18 L73 18 L70 38 L65 45 L65 78 L75 83 L25 83 L35 78 L35 45 L30 38 Z"/><path d="M21 86 L79 86 L83 92 L17 92 Z"/></g></svg>`,
-bR:`<svg class="piece" viewBox="0 0 100 100"><g fill="#222" stroke="#eee" stroke-width="3" stroke-linejoin="round"><path d="M27 18 L39 18 L39 28 L47 28 L47 18 L53 18 L53 28 L61 28 L61 18 L73 18 L70 38 L65 45 L65 78 L75 83 L25 83 L35 78 L35 45 L30 38 Z"/><path d="M21 86 L79 86 L83 92 L17 92 Z"/></g></svg>`,
-
-wQ:`<svg class="piece" viewBox="0 0 100 100"><g fill="#fff" stroke="#222" stroke-width="3" stroke-linejoin="round"><path d="M25 78 L31 40 L22 25 L38 35 L50 19 L62 35 L78 25 L69 40 L75 78 Z"/><path d="M20 83 L80 83 L84 92 L16 92 Z"/></g><circle cx="50" cy="13" r="5" fill="#fff" stroke="#222" stroke-width="3"/></svg>`,
-bQ:`<svg class="piece" viewBox="0 0 100 100"><g fill="#222" stroke="#eee" stroke-width="3" stroke-linejoin="round"><path d="M25 78 L31 40 L22 25 L38 35 L50 19 L62 35 L78 25 L69 40 L75 78 Z"/><path d="M20 83 L80 83 L84 92 L16 92 Z"/></g><circle cx="50" cy="13" r="5" fill="#222" stroke="#eee" stroke-width="3"/></svg>`,
-
-wK:`<svg class="piece" viewBox="0 0 100 100"><g fill="#fff" stroke="#222" stroke-width="3" stroke-linejoin="round"><path d="M44 12 L56 12 L56 25 L68 25 L68 37 L56 37 L56 47 C64 51 70 60 70 69 L77 82 L23 82 L30 69 C30 60 36 51 44 47 L44 37 L32 37 L32 25 L44 25 Z"/><path d="M19 86 L81 86 L84 92 L16 92 Z"/></g></svg>`,
-bK:`<svg class="piece" viewBox="0 0 100 100"><g fill="#222" stroke="#eee" stroke-width="3" stroke-linejoin="round"><path d="M44 12 L56 12 L56 25 L68 25 L68 37 L56 37 L56 47 C64 51 70 60 70 69 L77 82 L23 82 L30 69 C30 60 36 51 44 47 L44 37 L32 37 L32 25 L44 25 Z"/><path d="M19 86 L81 86 L84 92 L16 92 Z"/></g></svg>`
-};
-
-
-/* =========================================================
-   STARTING POSITION
-========================================================= */
-
-const startingPosition={
-a8:"bR",b8:"bN",c8:"bB",d8:"bQ",e8:"bK",f8:"bB",g8:"bN",h8:"bR",
-a7:"bP",b7:"bP",c7:"bP",d7:"bP",e7:"bP",f7:"bP",g7:"bP",h7:"bP",
-a2:"wP",b2:"wP",c2:"wP",d2:"wP",e2:"wP",f2:"wP",g2:"wP",h2:"wP",
-a1:"wR",b1:"wN",c1:"wB",d1:"wQ",e1:"wK",f1:"wB",g1:"wN",h1:"wR"
-};
-
-
-/* =========================================================
-   OPENING DATA
-   ADD NEW OPENINGS HERE.
-   DO NOT CHANGE THE ENGINE BELOW.
-========================================================= */
-
-const OPENINGS={
 
 const OPENINGS = {
-  // ==========================================
-  // BLACK OPENINGS
-  // ==========================================
-
-  "sicilian-defense": {
-    "name": "Sicilian Defense",
-    "color": "black",
-    "difficulty": "Advanced",
-    "eco": "B90",
-    "description": "The most dynamic and popular response to 1. e4. Black creates an asymmetrical center by exchanging a flank c-pawn for White's central d-pawn.",
-    "introSteps": [
-      {
-        "title": "Fight for the d4 square",
-        "text": "White plays 1. e4. Respond with 1...c5 to claim space on the queenside and control d4.",
-        "prompt": "Play c5.",
-        "from": "c7",
-        "to": "c5",
-        "opponent": { "from": "e2", "to": "e4" },
-        "explanation": "c5 prevents White from establishing an uncontested two-pawn center with e4 and d4."
-      },
-      {
-        "title": "Prepare central exchanges",
-        "text": "White plays 2. Nf3. Develop your knight to d6 or prepare the pawn structure with 2...d6.",
-        "prompt": "Play d6.",
-        "from": "d7",
-        "to": "d6",
-        "opponent": { "from": "g1", "to": "f3" },
-        "explanation": "2...d6 controls e5 and prepares to develop the g8-knight to f6 without blocking the c8-bishop."
-      },
-      {
-        "title": "Trade in the center",
-        "text": "White strikes with 3. d4. Capture the pawn on d4.",
-        "prompt": "Play cxd4.",
-        "from": "c5",
-        "to": "d4",
-        "opponent": { "from": "d2", "to": "d4" },
-        "explanation": "Trading the c-pawn for White's d-pawn gives Black a central pawn advantage in the long run."
-      },
-      {
-        "title": "Develop with pressure",
-        "text": "White recaptures 4. Nxd4. Develop your knight to f6 to attack e4.",
-        "prompt": "Play Nf6.",
-        "from": "g8",
-        "to": "f6",
-        "opponent": { "from": "f3", "to": "d4" },
-        "explanation": "Nf6 develops with a threat against White's unsupported e4-pawn."
-      }
-    ],
-    "variations": {
-      "najdorf": {
-        "name": "Najdorf Variation (5...a6)",
-        "description": "The sharpest and most flexible line in the Sicilian Defense, favored by Bobby Fischer and Garry Kasparov.",
-        "steps": [
-          {
-            "title": "The flexible Najdorf move",
-            "text": "White defends with 5. Nc3. Play 5...a6 to prepare b5 and stop White pieces from using b5.",
-            "prompt": "Play a6.",
-            "from": "a7",
-            "to": "a6",
-            "opponent": { "from": "b1", "to": "c3" },
-            "explanation": "a6 keeps White's knights and light-squared bishop out of the b5 square, preparing a queenside pawn expansion."
-          },
-          {
-            "title": "Prepare kingside development",
-            "text": "White plays 6. Bg5. Solidify the center with 6...e6.",
-            "prompt": "Play e6.",
-            "from": "e7",
-            "to": "e6",
-            "opponent": { "from": "c1", "to": "g5" },
-            "explanation": "e6 prevents White from invading on d5 and prepares dark-squared bishop development."
-          }
-        ],
-        "summary": "The Najdorf offers rich tactical counterplay, giving Black long-term chances to win from an asymmetrical structure."
-      }
-    }
-  },
-
-  "french-defense": {
-    "name": "French Defense",
-    "color": "black",
-    "difficulty": "Moderate",
-    "eco": "C00",
-    "description": "A resilient, counter-attacking defense where Black allows White a strong center in order to attack it immediately with ...d5 and ...c5.",
-    "introSteps": [
-      {
-        "title": "Prepare the central strike",
-        "text": "White opens 1. e4. Respond with 1...e6.",
-        "prompt": "Play e6.",
-        "from": "e7",
-        "to": "e6",
-        "opponent": { "from": "e2", "to": "e4" },
-        "explanation": "1...e6 lays the foundation for an immediate 2...d5 push."
-      },
-      {
-        "title": "Challenge the e4 pawn",
-        "text": "White takes the center with 2. d4. Strike back with 2...d5.",
-        "prompt": "Play d5.",
-        "from": "d7",
-        "to": "d5",
-        "opponent": { "from": "d2", "to": "d4" },
-        "explanation": "d5 attacks e4 and challenges White's space advantage directly."
-      }
-    ],
-    "variations": {
-      "winawer": {
-        "name": "Winawer Variation (3. Nc3 Bb4)",
-        "description": "A sharp, uncompromising response that pins White's knight to attack the e4-pawn.",
-        "steps": [
-          {
-            "title": "Pin the knight",
-            "text": "White develops with 3. Nc3. Pin the knight with 3...Bb4.",
-            "prompt": "Play Bb4.",
-            "from": "f8",
-            "to": "b4",
-            "opponent": { "from": "b1", "to": "c3" },
-            "explanation": "Bb4 places maximum pressure on the c3-knight guarding White's e4 pawn."
-          },
-          {
-            "title": "Counter the center push",
-            "text": "White advances 4. e5. Undermine d4 with 4...c5!",
-            "prompt": "Play c5.",
-            "from": "c7",
-            "to": "c5",
-            "opponent": { "from": "e4", "to": "e5" },
-            "explanation": "c5 strikes at the base of White's pawn chain on d4."
-          }
-        ],
-        "summary": "The Winawer creates sharp positional imbalances where Black trades dark-square control for powerful central pressure."
-      }
-    }
-  },
-
-  "kings-indian": {
-    "name": "King's Indian Defense",
-    "color": "black",
-    "difficulty": "Advanced",
-    "eco": "E60",
-    "description": "A hypermodern defense against 1. d4. Black allows White to build a large center, then launches a aggressive counterattack on the kingside.",
-    "introSteps": [
-      {
-        "title": "Control e4 indirectly",
-        "text": "White opens 1. d4. Develop your knight with 1...Nf6.",
-        "prompt": "Play Nf6.",
-        "from": "g8",
-        "to": "f6",
-        "opponent": { "from": "d2", "to": "d4" },
-        "explanation": "Nf6 prevents White from immediately playing 2. e4."
-      },
-      {
-        "title": "Fianchetto setup",
-        "text": "White plays 2. c4. Prepare to fianchetto your dark-squared bishop with 2...g6.",
-        "prompt": "Play g6.",
-        "from": "g7",
-        "to": "g6",
-        "opponent": { "from": "c2", "to": "c4" },
-        "explanation": "g6 paves the way for Bg7, targeting the long diagonal toward White's center."
-      },
-      {
-        "title": "Develop the dragon bishop",
-        "text": "White plays 3. Nc3. Complete the dark-squared bishop placement with 3...Bg7.",
-        "prompt": "Play Bg7.",
-        "from": "f8",
-        "to": "g7",
-        "opponent": { "from": "b1", "to": "c3" },
-        "explanation": "Bg7 controls the main h8-a1 diagonal."
-      },
-      {
-        "title": "Secure the king",
-        "text": "White establishes a massive center with 4. e4. Castle kingside with 4...O-O.",
-        "prompt": "Castle kingside with O-O.",
-        "from": "e8",
-        "to": "g8",
-        "opponent": { "from": "e2", "to": "e4" },
-        "special": "castle",
-        "explanation": "Castling puts the Black king into safety before striking the center."
-      }
-    ],
-    "variations": {
-      "mar_del_plata": {
-        "name": "Classical Counter (5...d6 & 6...e5)",
-        "description": "Black anchors the defense with d6 and launches an explosive e5 counter-break.",
-        "steps": [
-          {
-            "title": "Control e5 and c5",
-            "text": "White plays 5. Nf3. Control central squares with 5...d6.",
-            "prompt": "Play d6.",
-            "from": "d7",
-            "to": "d6",
-            "opponent": { "from": "g1", "to": "f3" },
-            "explanation": "d6 prepares the e5 break while stopping White's e5 expansion."
-          },
-          {
-            "title": "Strike the center",
-            "text": "White develops 6. Be2. Break open the center with 6...e5!",
-            "prompt": "Play e5.",
-            "from": "e7",
-            "to": "e5",
-            "opponent": { "from": "f1", "to": "e2" },
-            "explanation": "e5 challenges White's space advantage and forces a strategic decision."
-          }
-        ],
-        "summary": "The King's Indian leads to opposite-side pawn storms, where White attacks the queenside and Black hunts White's king."
-      }
-    }
-  },
-
-  "slav-defense": {
-    "name": "Slav Defense",
-    "color": "black",
-    "difficulty": "Moderate",
-    "eco": "D10",
-    "description": "One of Black's most reliable weapons against 1. d4. Black supports d5 with c6, keeping the c8-bishop's diagonal open.",
-    "introSteps": [
-      {
-        "title": "Match the center pawn",
-        "text": "White plays 1. d4. Claim equal central ground with 1...d5.",
-        "prompt": "Play d5.",
-        "from": "d7",
-        "to": "d5",
-        "opponent": { "from": "d2", "to": "d4" },
-        "explanation": "Standard Queen's Pawn reply."
-      },
-      {
-        "title": "Support with c6",
-        "text": "White offers the gambit with 2. c4. Support d5 with 2...c6.",
-        "prompt": "Play c6.",
-        "from": "c7",
-        "to": "c6",
-        "opponent": { "from": "c2", "to": "c4" },
-        "explanation": "2...c6 defends d5 without blocking the c8 light-squared bishop (unlike the 2...e6 QGD)."
-      }
-    ],
-    "variations": {
-      "main_line": {
-        "name": "Classical Slav Defense",
-        "description": "A rock-solid response focused on logical piece development.",
-        "steps": [
-          {
-            "title": "Develop toward the center",
-            "text": "White plays 3. Nf3. Develop your knight to f6.",
-            "prompt": "Play Nf6.",
-            "from": "g8",
-            "to": "f6",
-            "opponent": { "from": "g1", "to": "f3" },
-            "explanation": "Nf6 develops Black's king's knight while maintaining control over e4."
-          },
-          {
-            "title": "Accept material temporarily",
-            "text": "White plays 4. Nc3. Take on c4 with 4...dxc4.",
-            "prompt": "Play dxc4.",
-            "from": "d5",
-            "to": "c4",
-            "opponent": { "from": "b1", "to": "c3" },
-            "explanation": "4...dxc4 frees the c8-f5 diagonal for Black's bishop before White plays e3."
-          }
-        ],
-        "summary": "The Slav remains a dominant top-level choice due to its balance of structural safety and clear piece development."
-      }
-    }
-  },
-
-  // ==========================================
   // WHITE OPENINGS
-  // ==========================================
-
   "ruy-lopez": {
-    "name": "Ruy Lopez (Spanish Opening)",
+    "name": "Ruy Lopez (Spanish)",
     "color": "white",
     "difficulty": "Advanced",
     "eco": "C60",
-    "description": "One of the oldest, most respected, and deeply analyzed openings in chess. White puts immediate structural pressure on Black's center by pinning or attacking the defender of e5.",
+    "description": "One of the oldest and most respected openings. White pressures Black's e5 pawn by attacking its defender.",
     "introSteps": [
       {
         "title": "Control the center",
-        "text": "Start with 1. e4 to claim central territory and open lines for your queen and f1-bishop.",
+        "text": "Start with 1. e4 to claim central territory and open lines.",
         "prompt": "Play e4.",
-        "from": "e2",
-        "to": "e4",
+        "from": "e2", "to": "e4",
         "explanation": "e4 controls key central squares like d5."
       },
       {
         "title": "Develop with pressure",
         "text": "Black plays 1...e5. Develop your knight to f3 to attack the e5-pawn.",
         "prompt": "Play Nf3.",
-        "from": "g1",
-        "to": "f3",
+        "from": "g1", "to": "f3",
         "opponent": { "from": "e7", "to": "e5" },
-        "explanation": "Nf3 develops toward the center while threatening Black's e5-pawn."
+        "explanation": "Nf3 develops toward the center while threatening e5."
       },
       {
         "title": "The Spanish Bishop",
         "text": "Black defends with 2...Nc6. Move your bishop to b5 to define the Ruy Lopez.",
         "prompt": "Play Bb5.",
-        "from": "f1",
-        "to": "b5",
+        "from": "f1", "to": "b5",
         "opponent": { "from": "b8", "to": "c6" },
         "explanation": "Bb5 indirectly pressures e5 by attacking the knight that guards it."
       }
     ],
     "variations": {
       "morphy_defense": {
-        "name": "Morphy Defense (3...a6 Main Line)",
-        "description": "The most classical defense: Black forces White's bishop to declare its intentions.",
+        "name": "Morphy Defense (3...a6)",
+        "description": "Black forces White's bishop to declare its intentions.",
         "steps": [
           {
             "title": "Maintain the bishop tension",
-            "text": "Black plays 3...a6. Retreat the bishop to a4 to maintain the pin/pressure on c6.",
+            "text": "Black plays 3...a6. Retreat the bishop to a4 to maintain the pin.",
             "prompt": "Play Ba4.",
-            "from": "b5",
-            "to": "a4",
+            "from": "b5", "to": "a4",
             "opponent": { "from": "a7", "to": "a6" },
-            "explanation": "Ba4 preserves the light-squared bishop along the diagonal while keeping pressure on Black."
+            "explanation": "Ba4 preserves the light-squared bishop while keeping pressure."
           },
           {
             "title": "Castle into safety",
             "text": "Black develops 4...Nf6. Castle kingside to secure your king.",
             "prompt": "Castle kingside with O-O.",
-            "from": "e1",
-            "to": "g1",
-            "opponent": { "from": "g8", "to": "f6" },
+            "from": "e1", "to": "g1",
             "special": "castle",
-            "explanation": "Castling puts White's king into safety and enables Re1 support for e4."
+            "opponent": { "from": "g8", "to": "f6" },
+            "explanation": "Castling secures White's king and prepares central rook support."
           }
         ],
-        "summary": "The Morphy Defense is the cornerstone of modern Ruy Lopez theory, leading to rich, strategic middlegames."
+        "summary": "The Morphy Defense leads to rich, highly strategic middlegames."
       }
     }
   },
 
   "italian-game": {
-    "name": "Italian Game (Giuoco Piano)",
+    "name": "Italian Game",
     "color": "white",
     "difficulty": "Simple",
     "eco": "C50",
-    "description": "A classical open game focusing on rapid piece deployment, early king safety, and direct control over the vulnerable f7-square.",
+    "description": "A classical open game focusing on rapid development, king safety, and direct control over f7.",
     "introSteps": [
       {
         "title": "Claim central space",
         "text": "Open with 1. e4.",
         "prompt": "Play e4.",
-        "from": "e2",
-        "to": "e4",
+        "from": "e2", "to": "e4",
         "explanation": "Standard king's pawn start."
       },
       {
         "title": "Develop and attack",
         "text": "Black replies 1...e5. Develop your knight to f3.",
         "prompt": "Play Nf3.",
-        "from": "g1",
-        "to": "f3",
+        "from": "g1", "to": "f3",
         "opponent": { "from": "e7", "to": "e5" },
         "explanation": "Attacks e5 and prepares kingside castling."
       },
@@ -535,28 +577,26 @@ const OPENINGS = {
         "title": "Target f7",
         "text": "Black guards e5 with 2...Nc6. Move your bishop to c4.",
         "prompt": "Play Bc4.",
-        "from": "f1",
-        "to": "c4",
+        "from": "f1", "to": "c4",
         "opponent": { "from": "b8", "to": "c6" },
-        "explanation": "Bc4 takes control of the a2-g8 diagonal and targets f7, the weakest point in Black's camp."
+        "explanation": "Bc4 targets f7, the weakest point in Black's starting position."
       }
     ],
     "variations": {
       "giuoco_pianissimo": {
-        "name": "Giuoco Pianissimo (Quiet Game)",
-        "description": "A solid, positional approach building a strong pawn structure with d3 and c3.",
+        "name": "Giuoco Pianissimo",
+        "description": "A solid, positional approach building a strong pawn structure.",
         "steps": [
           {
             "title": "Solidify the center",
             "text": "Black plays 3...Bc5. Support e4 by playing 4. d3.",
             "prompt": "Play d3.",
-            "from": "d2",
-            "to": "d3",
+            "from": "d2", "to": "d3",
             "opponent": { "from": "f8", "to": "c5" },
-            "explanation": "d3 firmly defends e4 and frees the c1-bishop for deployment."
+            "explanation": "d3 firmly defends e4 and frees the dark-squared bishop."
           }
         ],
-        "summary": "The Quiet Italian builds positional momentum, allowing White to maneuver pieces safely."
+        "summary": "The Quiet Italian builds positional momentum before striking in the center."
       }
     }
   },
@@ -566,42 +606,39 @@ const OPENINGS = {
     "color": "white",
     "difficulty": "Moderate",
     "eco": "D06",
-    "description": "The premier Queen's Pawn opening. White offers a flank c-pawn to undermine Black's center pawn on d5 and secure long-term spatial control.",
+    "description": "White offers a flank c-pawn to undermine Black's center on d5 and gain long-term spatial control.",
     "introSteps": [
       {
         "title": "The Queen's Pawn start",
         "text": "Begin with 1. d4 to claim central space.",
         "prompt": "Play d4.",
-        "from": "d2",
-        "to": "d4",
+        "from": "d2", "to": "d4",
         "explanation": "d4 controls e5 and c5."
       },
       {
         "title": "The Gambit Offer",
         "text": "Black plays 1...d5. Offer the c-pawn with 2. c4!",
         "prompt": "Play c4.",
-        "from": "c2",
-        "to": "c4",
+        "from": "c2", "to": "c4",
         "opponent": { "from": "d7", "to": "d5" },
-        "explanation": "c4 challenges Black's center."
+        "explanation": "c4 challenges Black's center pawn directly."
       }
     ],
     "variations": {
       "qgd": {
-        "name": "Queen's Gambit Declined (2...e6)",
-        "description": "Black holds the center firmly with e6.",
+        "name": "Queen's Gambit Declined",
+        "description": "Black holds the center firmly with 2...e6.",
         "steps": [
           {
             "title": "Develop the Knight",
             "text": "Black defends d5 with 2...e6. Develop your knight to c3.",
             "prompt": "Play Nc3.",
-            "from": "b1",
-            "to": "c3",
+            "from": "b1", "to": "c3",
             "opponent": { "from": "e7", "to": "e6" },
-            "explanation": "Nc3 adds pressure to d5."
+            "explanation": "Nc3 adds a second attack on d5."
           }
         ],
-        "summary": "A fundamental opening used at every level of master play."
+        "summary": "A foundational classical opening used at every level of master play."
       }
     }
   },
@@ -611,22 +648,20 @@ const OPENINGS = {
     "color": "white",
     "difficulty": "Moderate",
     "eco": "C44",
-    "description": "An underrated classical opening where White plays 3. c3 to support a massive pawn push to d4 on move 4.",
+    "description": "White plays 3. c3 to support a massive pawn push to d4 on move 4.",
     "introSteps": [
       {
         "title": "Open with e4",
         "text": "Claim the center with 1. e4.",
         "prompt": "Play e4.",
-        "from": "e2",
-        "to": "e4",
+        "from": "e2", "to": "e4",
         "explanation": "Standard central opening."
       },
       {
         "title": "Develop the Knight",
         "text": "Black answers 1...e5. Develop your knight to f3.",
         "prompt": "Play Nf3.",
-        "from": "g1",
-        "to": "f3",
+        "from": "g1", "to": "f3",
         "opponent": { "from": "e7", "to": "e5" },
         "explanation": "Pressures e5."
       },
@@ -634,28 +669,26 @@ const OPENINGS = {
         "title": "Prepare the d4 center",
         "text": "Black develops 2...Nc6. Play 3. c3!",
         "prompt": "Play c3.",
-        "from": "c2",
-        "to": "c3",
+        "from": "c2", "to": "c3",
         "opponent": { "from": "b8", "to": "c6" },
-        "explanation": "3. c3 prepares 4. d4 on the next turn."
+        "explanation": "3. c3 prepares to build a classical pawn duo with 4. d4."
       }
     ],
     "variations": {
       "main_counter": {
-        "name": "Main Counter (3...Nf6 4. d4)",
+        "name": "Main Counter (3...Nf6)",
         "description": "White carries out the planned d4 strike.",
         "steps": [
           {
             "title": "Execute d4",
             "text": "Black plays 3...Nf6. Push 4. d4!",
             "prompt": "Play d4.",
-            "from": "d2",
-            "to": "d4",
+            "from": "d2", "to": "d4",
             "opponent": { "from": "g8", "to": "f6" },
             "explanation": "d4 seizes immediate central initiative."
           }
         ],
-        "summary": "White achieves the intended pawn center, leading to energetic tactical play."
+        "summary": "White achieves the intended pawn center, leading to active play."
       }
     }
   },
@@ -665,597 +698,736 @@ const OPENINGS = {
     "color": "white",
     "difficulty": "Advanced",
     "eco": "C44",
-    "description": "An aggressive opening where White sacrifices the d4-pawn to secure rapid piece development, open central lines, and early attacking chances against f7.",
+    "description": "White sacrifices the d4-pawn for rapid development and early attacking chances.",
     "introSteps": [
       {
         "title": "Start with the center",
-        "text": "The Scotch Gambit begins with 1. e4.",
-        "prompt": "First, play e4.",
-        "from": "e2",
-        "to": "e4",
-        "explanation": "e4 controls d5 and f5."
+        "text": "Begin with 1. e4.",
+        "prompt": "Play e4.",
+        "from": "e2", "to": "e4",
+        "explanation": "e4 claims central territory."
       },
       {
         "title": "Develop with tempo",
-        "text": "Black answered with 1...e5. Develop your knight with Nf3.",
-        "prompt": "Now play Nf3.",
-        "from": "g1",
-        "to": "f3",
+        "text": "Black replies 1...e5. Develop your knight with Nf3.",
+        "prompt": "Play Nf3.",
+        "from": "g1", "to": "f3",
         "opponent": { "from": "e7", "to": "e5" },
         "explanation": "Nf3 attacks e5."
       },
       {
         "title": "Fight for the center",
-        "text": "Black played 2...Nc6. Now play d4.",
+        "text": "Black plays 2...Nc6. Strike with 3. d4.",
         "prompt": "Play d4.",
-        "from": "d2",
-        "to": "d4",
+        "from": "d2", "to": "d4",
         "opponent": { "from": "b8", "to": "c6" },
-        "explanation": "d4 challenges Black's center immediately."
+        "explanation": "d4 challenges Black's central pawn."
       },
       {
         "title": "The gambit offer",
-        "text": "Black captured with 3...exd4. Play 4. Bc4.",
+        "text": "Black captures 3...exd4. Play 4. Bc4.",
         "prompt": "Play Bc4.",
-        "from": "f1",
-        "to": "c4",
+        "from": "f1", "to": "c4",
         "opponent": { "from": "e5", "to": "d4" },
-        "explanation": "Bc4 leaves d4 exposed in exchange for attacking development."
+        "explanation": "Bc4 trades material for rapid development."
       }
     ],
     "variations": {
       "dubois": {
-        "name": "Dubois-Réti Defense (4...Nf6)",
-        "description": "Black counterattacks White's e4-pawn.",
+        "name": "Dubois-Réti Defense",
+        "description": "Black counterattacks White's e4-pawn with 4...Nf6.",
         "steps": [
           {
             "title": "Advance and attack",
             "text": "Black plays 4...Nf6. Advance to e5.",
             "prompt": "Play e5.",
-            "from": "e4",
-            "to": "e5",
+            "from": "e4", "to": "e5",
             "opponent": { "from": "g8", "to": "f6" },
-            "explanation": "e5 gains space and displaces the knight."
+            "explanation": "e5 gains space and kicks the knight away."
           }
         ],
-        "summary": "Main line leading to dynamic, open tactical play."
+        "summary": "Leads to energetic, open tactical play."
+      }
+    }
+  },
+
+  // BLACK OPENINGS
+  "sicilian-defense": {
+    "name": "Sicilian Defense",
+    "color": "black",
+    "difficulty": "Advanced",
+    "eco": "B90",
+    "description": "The most dynamic counter against 1. e4. Black trades a flank c-pawn for White's central d-pawn.",
+    "introSteps": [
+      {
+        "title": "Fight for d4",
+        "text": "White plays 1. e4. Respond with 1...c5 to claim space and control d4.",
+        "prompt": "Play c5.",
+        "from": "c7", "to": "c5",
+        "opponent": { "from": "e2", "to": "e4" },
+        "explanation": "c5 prevents White from building an uncontested center."
+      },
+      {
+        "title": "Prepare central control",
+        "text": "White plays 2. Nf3. Prepare your structure with 2...d6.",
+        "prompt": "Play d6.",
+        "from": "d7", "to": "d6",
+        "opponent": { "from": "g1", "to": "f3" },
+        "explanation": "d6 controls e5 and prepares Nf6."
+      },
+      {
+        "title": "Trade in the center",
+        "text": "White strikes with 3. d4. Capture on d4.",
+        "prompt": "Play cxd4.",
+        "from": "c5", "to": "d4",
+        "opponent": { "from": "d2", "to": "d4" },
+        "explanation": "Trading the c-pawn gives Black central pawn leverage."
+      },
+      {
+        "title": "Develop with pressure",
+        "text": "White recaptures 4. Nxd4. Develop your knight to f6.",
+        "prompt": "Play Nf6.",
+        "from": "g8", "to": "f6",
+        "opponent": { "from": "f3", "to": "d4" },
+        "explanation": "Nf6 develops with an attack on e4."
+      }
+    ],
+    "variations": {
+      "najdorf": {
+        "name": "Najdorf Variation",
+        "description": "The sharpest and most flexible line in the Sicilian.",
+        "steps": [
+          {
+            "title": "The flexible Najdorf move",
+            "text": "White defends with 5. Nc3. Play 5...a6.",
+            "prompt": "Play a6.",
+            "from": "a7", "to": "a6",
+            "opponent": { "from": "b1", "to": "c3" },
+            "explanation": "a6 stops White piece invasions on b5 and prepares queenside expansion."
+          }
+        ],
+        "summary": "Offers rich tactical counterplay and winning chances for Black."
+      }
+    }
+  },
+
+  "french-defense": {
+    "name": "French Defense",
+    "color": "black",
+    "difficulty": "Moderate",
+    "eco": "C00",
+    "description": "A robust defense where Black allows White a space advantage to attack it with ...d5 and ...c5.",
+    "introSteps": [
+      {
+        "title": "Prepare the central strike",
+        "text": "White opens 1. e4. Respond with 1...e6.",
+        "prompt": "Play e6.",
+        "from": "e7", "to": "e6",
+        "opponent": { "from": "e2", "to": "e4" },
+        "explanation": "1...e6 prepares an immediate 2...d5 push."
+      },
+      {
+        "title": "Challenge the e4 pawn",
+        "text": "White takes the center with 2. d4. Strike back with 2...d5.",
+        "prompt": "Play d5.",
+        "from": "d7", "to": "d5",
+        "opponent": { "from": "d2", "to": "d4" },
+        "explanation": "d5 attacks e4 directly."
+      }
+    ],
+    "variations": {
+      "winawer": {
+        "name": "Winawer Variation",
+        "description": "A sharp, counter-attacking response against 3. Nc3.",
+        "steps": [
+          {
+            "title": "Pin the knight",
+            "text": "White develops 3. Nc3. Pin the knight with 3...Bb4.",
+            "prompt": "Play Bb4.",
+            "from": "f8", "to": "b4",
+            "opponent": { "from": "b1", "to": "c3" },
+            "explanation": "Bb4 pressures the knight defending e4."
+          }
+        ],
+        "summary": "Creates sharp positional imbalances favoring energetic piece play."
+      }
+    }
+  },
+
+  "kings-indian": {
+    "name": "King's Indian Defense",
+    "color": "black",
+    "difficulty": "Advanced",
+    "eco": "E60",
+    "description": "A hypermodern defense against 1. d4 where Black launches a furious kingside counterattack.",
+    "introSteps": [
+      {
+        "title": "Control e4 indirectly",
+        "text": "White opens 1. d4. Develop with 1...Nf6.",
+        "prompt": "Play Nf6.",
+        "from": "g8", "to": "f6",
+        "opponent": { "from": "d2", "to": "d4" },
+        "explanation": "Nf6 prevents White from playing an immediate 2. e4."
+      },
+      {
+        "title": "Prepare the fianchetto",
+        "text": "White plays 2. c4. Prepare 2...g6.",
+        "prompt": "Play g6.",
+        "from": "g7", "to": "g6",
+        "opponent": { "from": "c2", "to": "c4" },
+        "explanation": "g6 prepares to develop the dark-squared bishop."
+      },
+      {
+        "title": "Develop the dragon bishop",
+        "text": "White plays 3. Nc3. Complete 3...Bg7.",
+        "prompt": "Play Bg7.",
+        "from": "f8", "to": "g7",
+        "opponent": { "from": "b1", "to": "c3" },
+        "explanation": "Bg7 controls the main long diagonal."
+      }
+    ],
+    "variations": {
+      "mar_del_plata": {
+        "name": "Classical Counter",
+        "description": "Black anchors with d6 and breaks open the center with e5.",
+        "steps": [
+          {
+            "title": "Control central squares",
+            "text": "White plays 4. e4. Solidify with 4...d6.",
+            "prompt": "Play d6.",
+            "from": "d7", "to": "d6",
+            "opponent": { "from": "e2", "to": "e4" },
+            "explanation": "d6 stops White's e5 push and prepares ...e5 for Black."
+          }
+        ],
+        "summary": "Leads to exciting opposite-side attacking races."
+      }
+    }
+  },
+
+  "slav-defense": {
+    "name": "Slav Defense",
+    "color": "black",
+    "difficulty": "Moderate",
+    "eco": "D10",
+    "description": "A rock-solid response to 1. d4 that supports d5 without trapping the light-squared bishop.",
+    "introSteps": [
+      {
+        "title": "Match the center",
+        "text": "White plays 1. d4. Respond with 1...d5.",
+        "prompt": "Play d5.",
+        "from": "d7", "to": "d5",
+        "opponent": { "from": "d2", "to": "d4" },
+        "explanation": "Standard central defense."
+      },
+      {
+        "title": "Support with c6",
+        "text": "White offers 2. c4. Support d5 with 2...c6.",
+        "prompt": "Play c6.",
+        "from": "c7", "to": "c6",
+        "opponent": { "from": "c2", "to": "c4" },
+        "explanation": "c6 supports d5 while leaving the diagonal open for the c8-bishop."
+      }
+    ],
+    "variations": {
+      "classical": {
+        "name": "Classical Slav",
+        "description": "Focuses on logical piece development and solid pawn structure.",
+        "steps": [
+          {
+            "title": "Develop the knight",
+            "text": "White plays 3. Nf3. Develop 3...Nf6.",
+            "prompt": "Play Nf6.",
+            "from": "g8", "to": "f6",
+            "opponent": { "from": "g1", "to": "f3" },
+            "explanation": "Nf6 develops Black's knight toward the center."
+          }
+        ],
+        "summary": "Extremely solid opening favored by world champions."
       }
     }
   }
 };
-keyIdeas:[
-"Develop quickly instead of obsessing over material.",
-"Use checks and threats to make Black spend time defending.",
-"Keep your king safe while maintaining the initiative.",
-"Look for tactical opportunities created by Black's exposed king."
-]
-}
 
+/* =========================================================
+   PIECE ART
+========================================================= */
+
+const pieceSVG = {
+    wP: `<svg class="piece" viewBox="0 0 100 100"><g fill="#fff" stroke="#222" stroke-width="3" stroke-linejoin="round"><circle cx="50" cy="27" r="13"/><path d="M38 43 C40 38 60 38 62 43 L68 65 L76 79 L24 79 L32 65 Z"/><path d="M21 82 L79 82 L83 91 L17 91 Z"/></g></svg>`,
+    bP: `<svg class="piece" viewBox="0 0 100 100"><g fill="#222" stroke="#eee" stroke-width="3" stroke-linejoin="round"><circle cx="50" cy="27" r="13"/><path d="M38 43 C40 38 60 38 62 43 L68 65 L76 79 L24 79 L32 65 Z"/><path d="M21 82 L79 82 L83 91 L17 91 Z"/></g></svg>`,
+    wN: `<svg class="piece" viewBox="0 0 100 100"><g fill="#fff" stroke="#222" stroke-width="3" stroke-linejoin="round"><path d="M22 82 L29 68 L29 53 C29 43 34 32 43 25 L39 15 L54 20 L64 14 L69 23 L84 28 L78 38 L64 40 C69 48 71 56 69 65 L79 82 Z"/><path d="M17 85 L82 85 L85 92 L14 92 Z"/></g><circle cx="69" cy="29" r="3" fill="#222"/></svg>`,
+    bN: `<svg class="piece" viewBox="0 0 100 100"><g fill="#222" stroke="#eee" stroke-width="3" stroke-linejoin="round"><path d="M22 82 L29 68 L29 53 C29 43 34 32 43 25 L39 15 L54 20 L64 14 L69 23 L84 28 L78 38 L64 40 C69 48 71 56 69 65 L79 82 Z"/><path d="M17 85 L82 85 L85 92 L14 92 Z"/></g><circle cx="69" cy="29" r="3" fill="#eee"/></svg>`,
+    wB: `<svg class="piece" viewBox="0 0 100 100"><g fill="#fff" stroke="#222" stroke-width="3" stroke-linejoin="round"><path d="M50 12 L60 24 L56 38 C64 48 69 59 67 68 L76 82 L24 82 L33 68 C31 59 36 48 44 38 L40 24 Z"/><path d="M19 86 L81 86 L84 92 L16 92 Z"/></g><path d="M49 19 L53 31 L48 42" stroke="#222" stroke-width="3" fill="none"/></svg>`,
+    bB: `<svg class="piece" viewBox="0 0 100 100"><g fill="#222" stroke="#eee" stroke-width="3" stroke-linejoin="round"><path d="M50 12 L60 24 L56 38 C64 48 69 59 67 68 L76 82 L24 82 L33 68 C31 59 36 48 44 38 L40 24 Z"/><path d="M19 86 L81 86 L84 92 L16 92 Z"/></g><path d="M49 19 L53 31 L48 42" stroke="#eee" stroke-width="3" fill="none"/></svg>`,
+    wR: `<svg class="piece" viewBox="0 0 100 100"><g fill="#fff" stroke="#222" stroke-width="3" stroke-linejoin="round"><path d="M27 18 L39 18 L39 28 L47 28 L47 18 L53 18 L53 28 L61 28 L61 18 L73 18 L70 38 L65 45 L65 78 L75 83 L25 83 L35 78 L35 45 L30 38 Z"/><path d="M21 86 L79 86 L83 92 L16 92 Z"/></g></svg>`,
+    bR: `<svg class="piece" viewBox="0 0 100 100"><g fill="#222" stroke="#eee" stroke-width="3" stroke-linejoin="round"><path d="M27 18 L39 18 L39 28 L47 28 L47 18 L53 18 L53 28 L61 28 L61 18 L73 18 L70 38 L65 45 L65 78 L75 83 L25 83 L35 78 L35 45 L30 38 Z"/><path d="M21 86 L79 86 L83 92 L16 92 Z"/></g></svg>`,
+    wQ: `<svg class="piece" viewBox="0 0 100 100"><g fill="#fff" stroke="#222" stroke-width="3" stroke-linejoin="round"><path d="M25 78 L31 40 L22 25 L38 35 L50 19 L62 35 L78 25 L69 40 L75 78 Z"/><path d="M20 83 L80 83 L84 92 L16 92 Z"/></g><circle cx="50" cy="13" r="5" fill="#fff" stroke="#222" stroke-width="3"/></svg>`,
+    bQ: `<svg class="piece" viewBox="0 0 100 100"><g fill="#222" stroke="#eee" stroke-width="3" stroke-linejoin="round"><path d="M25 78 L31 40 L22 25 L38 35 L50 19 L62 35 L78 25 L69 40 L75 78 Z"/><path d="M20 83 L80 83 L84 92 L16 92 Z"/></g><circle cx="50" cy="13" r="5" fill="#222" stroke="#eee" stroke-width="3"/></svg>`,
+    wK: `<svg class="piece" viewBox="0 0 100 100"><g fill="#fff" stroke="#222" stroke-width="3" stroke-linejoin="round"><path d="M44 12 L56 12 L56 25 L68 25 L68 37 L56 37 L56 47 C64 51 70 60 70 69 L77 82 L23 82 L30 69 C30 60 36 51 44 47 L44 37 L32 37 L32 25 L44 25 Z"/><path d="M19 86 L81 86 L84 92 L16 92 Z"/></g></svg>`,
+    bK: `<svg class="piece" viewBox="0 0 100 100"><g fill="#222" stroke="#eee" stroke-width="3" stroke-linejoin="round"><path d="M44 12 L56 12 L56 25 L68 25 L68 37 L56 37 L56 47 C64 51 70 60 70 69 L77 82 L23 82 L30 69 C30 60 36 51 44 47 L44 37 L32 37 L32 25 L44 25 Z"/><path d="M19 86 L81 86 L84 92 L16 92 Z"/></g></svg>`
 };
 
+const startingPosition = {
+    a8: "bR", b8: "bN", c8: "bB", d8: "bQ", e8: "bK", f8: "bB", g8: "bN", h8: "bR",
+    a7: "bP", b7: "bP", c7: "bP", d7: "bP", e7: "bP", f7: "bP", g7: "bP", h7: "bP",
+    a2: "wP", b2: "wP", c2: "wP", d2: "wP", e2: "wP", f2: "wP", g2: "wP", h2: "wP",
+    a1: "wR", b1: "wN", c1: "wB", d1: "wQ", e1: "wK", f1: "wB", g1: "wN", h1: "wR"
+};
 
 /* =========================================================
-   STATE
+   APP STATE
 ========================================================= */
 
-let currentOpeningId="scotch-gambit",pieces={},selectedSquare=null,inputLocked=false,currentStage="intro",currentStep=0,wrongAttempts=0,completedStages=new Set();
-
+let currentOpeningKey = "scotch-gambit";
+let pieces = {};
+let selectedSquare = null;
+let inputLocked = false;
+let currentStage = "intro";
+let currentStep = 0;
+let wrongAttempts = 0;
 
 /* =========================================================
-   PROGRESS
+   TAB SYSTEM
 ========================================================= */
 
-const STORAGE_KEY="chessOpeningTrainerProgress";
-
-function getProgressData(){
-const saved=localStorage.getItem(STORAGE_KEY);
-if(!saved)return{learned:{},completed:{}};
-try{
-const parsed=JSON.parse(saved);
-return{learned:parsed.learned||{},completed:parsed.completed||{}};
-}catch(error){return{learned:{},completed:{}}}
-}
-
-function saveProgressData(data){localStorage.setItem(STORAGE_KEY,JSON.stringify(data))}
-function markOpeningLearned(id){const data=getProgressData();data.learned[id]=true;saveProgressData(data)}
-function isOpeningLearned(id){return getProgressData().learned[id]===true}
-function saveCompletedStages(){const data=getProgressData();data.completed[currentOpeningId]=[...completedStages];saveProgressData(data)}
-function loadCompletedStages(){const data=getProgressData();completedStages=new Set(data.completed[currentOpeningId]||[])}
-
-
-/* =========================================================
-   OPENING HELPERS
-========================================================= */
-
-function getCurrentOpening(){return OPENINGS[currentOpeningId]}
-function getStageOrder(){return["intro",...Object.keys(getCurrentOpening().variations)]}
-function getStepsForStage(stage){return stage==="intro"?getCurrentOpening().introSteps:getCurrentOpening().variations[stage].steps}
-function getCurrentStep(){return getStepsForStage(currentStage)[currentStep]}
-
-
-/* =========================================================
-   POSITION HELPERS
-========================================================= */
-
-function clonePosition(position){return{...position}}
-
-function makeMoveOnPosition(position,from,to){
-if(!position[from])return;
-position[to]=position[from];
-delete position[from];
-}
-
-function castleOnPosition(position,from,to){
-const king=position[from];
-if(!king)return;
-const isWhite=king==="wK",rank=isWhite?"1":"8";
-const kingside=to==="g"+rank,queenside=to==="c"+rank;
-if(!kingside&&!queenside)return;
-const rookFrom=kingside?"h"+rank:"a"+rank,rookTo=kingside?"f"+rank:"d"+rank;
-position[to]=position[from];
-delete position[from];
-if(position[rookFrom]){position[rookTo]=position[rookFrom];delete position[rookFrom]}
-}
-
-function applyStepToPosition(position,step){
-if(step.opponent)makeMoveOnPosition(position,step.opponent.from,step.opponent.to);
-if(step.special==="castle")castleOnPosition(position,step.from,step.to);
-else makeMoveOnPosition(position,step.from,step.to);
-}
-
-function getOpeningBasePosition(){
-const opening=getCurrentOpening(),position=clonePosition(opening.startingPosition||startingPosition);
-opening.introSteps.forEach(step=>applyStepToPosition(position,step));
-return position;
-}
-
-function getPositionBeforeStage(stage){
-if(stage==="intro")return clonePosition(getCurrentOpening().startingPosition||startingPosition);
-return getOpeningBasePosition();
-}
-
-
-/* =========================================================
-   BOARD
-========================================================= */
-
-function renderBoard(){
-const board=document.getElementById("board");
-board.innerHTML="";
-
-for(let rank=8;rank>=1;rank--){
-for(let fileIndex=0;fileIndex<8;fileIndex++){
-
-const file=String.fromCharCode(97+fileIndex),squareName=file+rank,square=document.createElement("div");
-
-square.className="square "+((fileIndex+rank)%2===0?"dark":"light");
-
-if(squareName===selectedSquare)square.classList.add("selected");
-
-const piece=pieces[squareName];
-if(piece)square.innerHTML=pieceSVG[piece];
-
-square.addEventListener("click",()=>handleSquareClick(squareName));
-board.appendChild(square);
-}
-}
-}
-
-
-/* =========================================================
-   MOVES
-========================================================= */
-
-function makeMove(from,to){makeMoveOnPosition(pieces,from,to)}
-function castle(from,to){castleOnPosition(pieces,from,to)}
-
-
-/* =========================================================
-   OPENING LIBRARY
-========================================================= */
-
-function renderOpeningLibrary(){
-const container=document.getElementById("openingList");
-container.innerHTML="";
-
-Object.entries(OPENINGS).forEach(([id,opening])=>{
-const button=document.createElement("button");
-button.className="opening";
-if(id===currentOpeningId)button.classList.add("selected");
-
-const learned=isOpeningLearned(id);
-
-button.innerHTML=`<span class="opening-name">${escapeHTML(opening.name)}</span><span class="opening-meta">${escapeHTML(opening.difficulty)}</span>${learned?'<span class="learned-badge">Learned</span>':""}`;
-
-button.addEventListener("click",()=>selectOpening(id));
-container.appendChild(button);
-});
-}
-
-function selectOpening(id){
-if(!OPENINGS[id])return;
-currentOpeningId=id;
-currentStage="intro";
-currentStep=0;
-selectedSquare=null;
-inputLocked=false;
-wrongAttempts=0;
-loadCompletedStages();
-resetLesson();
-renderOpeningLibrary();
-}
-
-
-/* =========================================================
-   HEADER
-========================================================= */
-
-function updateOpeningHeader(){
-const opening=getCurrentOpening();
-document.getElementById("openingTitle").textContent=opening.name;
-document.getElementById("openingDescription").textContent=opening.description;
-document.getElementById("difficulty").textContent=opening.difficulty;
-}
-
-
-/* =========================================================
-   MOVE INPUT
-========================================================= */
-
-function handleSquareClick(squareName){
-if(inputLocked)return;
-
-const step=getCurrentStep();
-if(!step)return;
-
-if(!selectedSquare){
-if(pieces[squareName]&&pieces[squareName].startsWith("w")){
-selectedSquare=squareName;
-renderBoard();
-}
-return;
-}
-
-if(squareName===selectedSquare){
-selectedSquare=null;
-renderBoard();
-return;
-}
-
-if(selectedSquare===step.from&&squareName===step.to){
-completeCurrentMove();
-}else{
-wrongAttempts++;
-const feedback=document.getElementById("feedback");
-
-if(step.tactic&&wrongAttempts>=2)feedback.textContent=getTacticHint(step);
-else feedback.textContent="That's not the move we're looking for. Try again.";
-
-feedback.className="feedback wrong";
-selectedSquare=null;
-renderBoard();
-}
-}
-
-function getTacticHint(step){
-return step.tacticHint||"Hint: look for a checking move that creates another threat.";
-}
-
-
-/* =========================================================
-   COMPLETE MOVE
-========================================================= */
-
-function completeCurrentMove(){
-const step=getCurrentStep();
-inputLocked=true;
-wrongAttempts=0;
-
-if(step.special==="castle")castle(step.from,step.to);
-else makeMove(step.from,step.to);
-
-selectedSquare=null;
-renderBoard();
-
-const feedback=document.getElementById("feedback");
-feedback.textContent="Correct!";
-feedback.className="feedback correct";
-
-setTimeout(()=>advanceLesson(),550);
-}
-
-
-/* =========================================================
-   ADVANCE
-========================================================= */
-
-function advanceLesson(){
-currentStep++;
-inputLocked=false;
-
-const steps=getStepsForStage(currentStage);
-
-if(currentStep>=steps.length){
-finishStage();
-return;
-}
-
-enterStep();
-}
-
-function enterStep(){
-const step=getCurrentStep();
-
-if(step&&step.opponent)makeMove(step.opponent.from,step.opponent.to);
-
-renderBoard();
-updateLesson();
-}
-
-
-/* =========================================================
-   LESSON DISPLAY
-========================================================= */
-
-function updateLesson(){
-const title=document.getElementById("lessonTitle"),text=document.getElementById("lessonText"),prompt=document.getElementById("movePrompt"),feedback=document.getElementById("feedback"),variationList=document.getElementById("variationList");
-
-feedback.textContent="";
-feedback.className="feedback";
-variationList.classList.add("hidden");
-variationList.innerHTML="";
-
-const step=getCurrentStep();
-if(!step)return;
-
-title.textContent=step.title;
-text.textContent=step.text;
-prompt.textContent=step.prompt;
-updateProgressBar();
-}
-
-
-/* =========================================================
-   PROGRESS
-========================================================= */
-
-function getTotalStepCount(){
-const opening=getCurrentOpening();
-let total=opening.introSteps.length;
-Object.values(opening.variations).forEach(v=>total+=v.steps.length);
-return total;
-}
-
-function getCompletedStepCount(){
-const stageOrder=getStageOrder();
-let completed=0;
-
-for(const stage of stageOrder){
-if(stage===currentStage){
-completed+=currentStep;
-break;
-}
-completed+=getStepsForStage(stage).length;
-}
-
-return completed;
-}
-
-function updateProgressBar(){
-const progress=document.getElementById("progressBar"),total=getTotalStepCount(),completed=getCompletedStepCount(),percentage=total>0?completed/total*100:0;
-progress.style.width=Math.min(100,percentage)+"%";
-}
-
-
-/* =========================================================
-   FINISH STAGES
-========================================================= */
-
-function finishStage(){
-if(currentStage==="intro"){
-showIntroComplete();
-return;
-}
-
-completedStages.add(currentStage);
-saveCompletedStages();
-showVariationComplete(currentStage);
-}
-
-function showIntroComplete(){
-const opening=getCurrentOpening(),title=document.getElementById("lessonTitle"),text=document.getElementById("lessonText"),prompt=document.getElementById("movePrompt"),feedback=document.getElementById("feedback");
-
-feedback.textContent="";
-feedback.className="feedback";
-title.textContent=opening.name;
-text.textContent="You've reached the position that defines the opening. Now let's look at the major variations and ideas you need to know.";
-prompt.textContent="";
-updateProgressBar();
-
-const stageOrder=getStageOrder(),nextStage=stageOrder[1];
-
-if(nextStage)showContinueButton(nextStage);
-else finishOpening();
-}
-
-function showVariationComplete(stage){
-const opening=getCurrentOpening(),variation=opening.variations[stage],title=document.getElementById("lessonTitle"),text=document.getElementById("lessonText"),prompt=document.getElementById("movePrompt"),feedback=document.getElementById("feedback");
-
-feedback.textContent="";
-feedback.className="feedback";
-title.textContent=variation.name+" complete";
-text.textContent=getVariationSummary(variation);
-updateProgressBar();
-
-const stageOrder=getStageOrder(),stageIndex=stageOrder.indexOf(stage),nextStage=stageOrder[stageIndex+1];
-
-if(nextStage){
-prompt.textContent="Continue to the next line.";
-showContinueButton(nextStage);
-}else finishOpening();
-}
-
-function finishOpening(){
-const opening=getCurrentOpening();
-markOpeningLearned(currentOpeningId);
-renderOpeningLibrary();
-
-const title=document.getElementById("lessonTitle"),text=document.getElementById("lessonText"),prompt=document.getElementById("movePrompt"),variationList=document.getElementById("variationList");
-
-title.textContent=opening.name+" learned ✓";
-
-text.innerHTML=`You've completed every lesson line for this opening.<div class="summary"><strong>Key ideas</strong><br><br>${opening.keyIdeas.map(idea=>"• "+escapeHTML(idea)).join("<br>")}</div>`;
-
-prompt.textContent="Opening learned ✓";
-variationList.classList.add("hidden");
-variationList.innerHTML="";
-updateProgressBar();
-}
-
-
-/* =========================================================
-   CONTINUE
-========================================================= */
-
-function showContinueButton(nextStage){
-const variationList=document.getElementById("variationList");
-variationList.classList.remove("hidden");
-variationList.innerHTML="";
-
-const variation=getCurrentOpening().variations[nextStage];
-if(!variation)return;
-
-const button=document.createElement("button");
-button.className="variation-button";
-button.innerHTML=`<strong>Continue → ${escapeHTML(variation.name)}</strong><span>${escapeHTML(variation.description)}</span>`;
-button.addEventListener("click",()=>advanceToNextStage(nextStage));
-variationList.appendChild(button);
-}
-
-function advanceToNextStage(nextStage){
-currentStage=nextStage;
-currentStep=0;
-selectedSquare=null;
-inputLocked=false;
-wrongAttempts=0;
-pieces=getPositionBeforeStage(nextStage);
-enterStep();
-}
-
-function getVariationSummary(variation){
-return variation.summary||variation.description;
-}
-
-
-/* =========================================================
-   HINT
-========================================================= */
-
-document.getElementById("hintButton").addEventListener("click",()=>{
-const step=getCurrentStep(),feedback=document.getElementById("feedback");
-
-if(!step){
-feedback.textContent="Click Continue to move on.";
-return;
-}
-
-if(step.tactic&&wrongAttempts>=1){
-feedback.textContent=getTacticHint(step);
-feedback.className="feedback";
-return;
-}
-
-feedback.textContent="Hint: move the piece from "+step.from.toUpperCase()+" to "+step.to.toUpperCase()+".";
-feedback.className="feedback";
+const tabs = document.querySelectorAll(".tab");
+const pages = document.querySelectorAll(".page");
+
+tabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+        const target = tab.dataset.page;
+        tabs.forEach(t => t.classList.remove("active"));
+        pages.forEach(p => p.classList.remove("active"));
+        tab.classList.add("active");
+        document.getElementById(target).classList.add("active");
+
+        if (target === "repertoire") {
+            updateRepertoire();
+        }
+    });
 });
 
-
 /* =========================================================
-   EXPLAIN FURTHER
+   RENDER SIDEBAR LIBRARY
 ========================================================= */
 
-document.getElementById("explainButton").addEventListener("click",()=>{
-const step=getCurrentStep(),feedback=document.getElementById("feedback");
+function renderOpeningList() {
+    const list = document.getElementById("openingList");
+    list.innerHTML = "";
 
-if(!step){
-feedback.textContent="This opening's main ideas are explained through the lesson lines and key ideas.";
-return;
+    const categories = [
+        { title: "White Openings", color: "white" },
+        { title: "Black Openings", color: "black" }
+    ];
+
+    categories.forEach(cat => {
+        const titleEl = document.createElement("div");
+        titleEl.className = "opening-category";
+        titleEl.textContent = cat.title;
+        list.appendChild(titleEl);
+
+        Object.keys(OPENINGS).forEach(key => {
+            const op = OPENINGS[key];
+            if (op.color !== cat.color) return;
+
+            const isLearned = localStorage.getItem(`${key}_learned`) === "true";
+
+            const btn = document.createElement("button");
+            btn.className = `opening ${key === currentOpeningKey ? "selected" : ""}`;
+            btn.innerHTML = `
+                <span class="opening-name">${op.name}</span>
+                <span class="opening-meta">${op.difficulty} • ${op.eco}</span>
+                ${isLearned ? '<span class="learned-badge">Learned ✓</span>' : ''}
+            `;
+
+            btn.addEventListener("click", () => {
+                selectOpening(key);
+            });
+
+            list.appendChild(btn);
+        });
+    });
 }
 
-feedback.textContent=step.explanation||"This move fits the strategic ideas of the opening.";
-feedback.className="feedback";
+function selectOpening(key) {
+    currentOpeningKey = key;
+    currentStage = "intro";
+    currentStep = 0;
+    renderOpeningList();
+    loadOpeningData();
+}
+
+function loadOpeningData() {
+    const op = OPENINGS[currentOpeningKey];
+
+    document.getElementById("openingTitle").textContent = op.name;
+    document.getElementById("openingMeta").textContent = op.description;
+    document.getElementById("difficultyBadge").textContent = op.difficulty;
+
+    resetLesson();
+}
+
+/* =========================================================
+   BOARD & MOVES
+========================================================= */
+
+function renderBoard() {
+    const board = document.getElementById("board");
+    board.innerHTML = "";
+
+    const op = OPENINGS[currentOpeningKey];
+    const isBlack = op && op.color === "black";
+
+    const ranks = isBlack ? [1, 2, 3, 4, 5, 6, 7, 8] : [8, 7, 6, 5, 4, 3, 2, 1];
+    const files = isBlack ? [7, 6, 5, 4, 3, 2, 1, 0] : [0, 1, 2, 3, 4, 5, 6, 7];
+
+    for (let r = 0; r < 8; r++) {
+        for (let f = 0; f < 8; f++) {
+            const rank = ranks[r];
+            const fileIndex = files[f];
+            const file = String.fromCharCode(97 + fileIndex);
+            const squareName = file + rank;
+
+            const square = document.createElement("div");
+            square.className = "square " + ((fileIndex + rank) % 2 === 0 ? "dark" : "light");
+
+            if (squareName === selectedSquare) {
+                square.classList.add("selected");
+            }
+
+            const piece = pieces[squareName];
+            if (piece) {
+                square.innerHTML = pieceSVG[piece];
+            }
+
+            square.addEventListener("click", () => handleSquareClick(squareName));
+            board.appendChild(square);
+        }
+    }
+}
+
+function makeMove(from, to) {
+    if (!pieces[from]) return;
+    pieces[to] = pieces[from];
+    delete pieces[from];
+}
+
+function castleKingside(color) {
+    if (color === "white" && pieces["e1"] === "wK") {
+        pieces["g1"] = pieces["e1"];
+        delete pieces["e1"];
+        if (pieces["h1"] === "wR") {
+            pieces["f1"] = pieces["h1"];
+            delete pieces["h1"];
+        }
+    } else if (color === "black" && pieces["e8"] === "bK") {
+        pieces["g8"] = pieces["e8"];
+        delete pieces["e8"];
+        if (pieces["h8"] === "bR") {
+            pieces["f8"] = pieces["h8"];
+            delete pieces["h8"];
+        }
+    }
+}
+
+/* =========================================================
+   LESSON ENGINE
+========================================================= */
+
+function getStepsForStage(stage) {
+    const op = OPENINGS[currentOpeningKey];
+    return stage === "intro" ? op.introSteps : op.variations[stage].steps;
+}
+
+function getCurrentStep() {
+    return getStepsForStage(currentStage)[currentStep];
+}
+
+function handleSquareClick(squareName) {
+    if (inputLocked) return;
+
+    const step = getCurrentStep();
+    if (!step) return;
+
+    const op = OPENINGS[currentOpeningKey];
+    const userColorPrefix = op.color === "black" ? "b" : "w";
+
+    if (!selectedSquare) {
+        if (pieces[squareName] && pieces[squareName].startsWith(userColorPrefix)) {
+            selectedSquare = squareName;
+            renderBoard();
+        }
+        return;
+    }
+
+    if (squareName === selectedSquare) {
+        selectedSquare = null;
+        renderBoard();
+        return;
+    }
+
+    if (selectedSquare === step.from && squareName === step.to) {
+        completeCurrentMove();
+    } else {
+        wrongAttempts++;
+        const feedback = document.getElementById("feedback");
+        feedback.textContent = "That's not the move we're looking for. Try again.";
+        feedback.className = "feedback wrong";
+        selectedSquare = null;
+        renderBoard();
+    }
+}
+
+function completeCurrentMove() {
+    const step = getCurrentStep();
+    const op = OPENINGS[currentOpeningKey];
+
+    inputLocked = true;
+    wrongAttempts = 0;
+
+    if (step.special === "castle") {
+        castleKingside(op.color);
+    } else {
+        makeMove(step.from, step.to);
+    }
+
+    selectedSquare = null;
+    renderBoard();
+
+    const feedback = document.getElementById("feedback");
+    feedback.textContent = "Correct!";
+    feedback.className = "feedback correct";
+
+    setTimeout(() => {
+        advanceLesson();
+    }, 500);
+}
+
+function advanceLesson() {
+    currentStep++;
+    inputLocked = false;
+
+    const steps = getStepsForStage(currentStage);
+
+    if (currentStep >= steps.length) {
+        finishStage();
+        return;
+    }
+
+    enterStep();
+}
+
+function enterStep() {
+    const step = getCurrentStep();
+
+    if (step && step.opponent) {
+        makeMove(step.opponent.from, step.opponent.to);
+    }
+
+    renderBoard();
+    updateLesson();
+}
+
+function updateLesson() {
+    const step = getCurrentStep();
+
+    document.getElementById("lessonTitle").textContent = step.title;
+    document.getElementById("lessonText").textContent = step.text;
+    document.getElementById("movePrompt").textContent = step.prompt;
+
+    const feedback = document.getElementById("feedback");
+    feedback.textContent = "";
+    feedback.className = "feedback";
+
+    const variationList = document.getElementById("variationList");
+    variationList.classList.add("hidden");
+    variationList.innerHTML = "";
+
+    updateProgressBar();
+}
+
+function updateProgressBar() {
+    const op = OPENINGS[currentOpeningKey];
+    const varKeys = Object.keys(op.variations);
+    const totalStages = 1 + varKeys.length;
+
+    let stageIndex = 0;
+    if (currentStage !== "intro") {
+        stageIndex = 1 + varKeys.indexOf(currentStage);
+    }
+
+    const steps = getStepsForStage(currentStage);
+    const fraction = steps.length ? currentStep / steps.length : 0;
+
+    const overall = ((stageIndex + fraction) / totalStages) * 100;
+    document.getElementById("progressBar").style.width = overall + "%";
+}
+
+function finishStage() {
+    const op = OPENINGS[currentOpeningKey];
+    const varKeys = Object.keys(op.variations);
+
+    if (currentStage === "intro") {
+        showIntroComplete();
+    } else {
+        const currentIndex = varKeys.indexOf(currentStage);
+        if (currentIndex < varKeys.length - 1) {
+            showContinueButton(varKeys[currentIndex + 1]);
+        } else {
+            markOpeningLearned();
+        }
+    }
+}
+
+function showIntroComplete() {
+    const op = OPENINGS[currentOpeningKey];
+    const varKeys = Object.keys(op.variations);
+
+    document.getElementById("lessonTitle").textContent = `${op.name} Core Complete`;
+    document.getElementById("lessonText").textContent = "You've mastered the main starting moves. Now let's explore key variation lines.";
+    document.getElementById("movePrompt").textContent = "";
+
+    if (varKeys.length > 0) {
+        showContinueButton(varKeys[0]);
+    } else {
+        markOpeningLearned();
+    }
+}
+
+function showContinueButton(nextStageKey) {
+    const op = OPENINGS[currentOpeningKey];
+    const variation = op.variations[nextStageKey];
+
+    const variationList = document.getElementById("variationList");
+    variationList.classList.remove("hidden");
+    variationList.innerHTML = "";
+
+    const button = document.createElement("button");
+    button.className = "variation-button";
+    button.innerHTML = `
+        <strong>Continue → ${variation.name}</strong>
+        <span>${variation.description}</span>
+    `;
+
+    button.addEventListener("click", () => advanceToNextStage(nextStageKey));
+    variationList.appendChild(button);
+}
+
+function advanceToNextStage(nextStageKey) {
+    currentStage = nextStageKey;
+    currentStep = 0;
+    selectedSquare = null;
+    inputLocked = false;
+
+    // Reset position to after intro steps
+    resetToPostIntroPosition();
+    enterStep();
+}
+
+function resetToPostIntroPosition() {
+    pieces = { ...startingPosition };
+    const op = OPENINGS[currentOpeningKey];
+
+    op.introSteps.forEach(step => {
+        if (step.opponent) {
+            makeMove(step.opponent.from, step.opponent.to);
+        }
+        if (step.special === "castle") {
+            castleKingside(op.color);
+        } else {
+            makeMove(step.from, step.to);
+        }
+    });
+}
+
+function markOpeningLearned() {
+    localStorage.setItem(`${currentOpeningKey}_learned`, "true");
+    renderOpeningList();
+
+    const op = OPENINGS[currentOpeningKey];
+    document.getElementById("lessonTitle").textContent = `${op.name} Learned! ✓`;
+    document.getElementById("lessonText").textContent = "Congratulations! You have successfully learned this opening and its primary lines.";
+    document.getElementById("movePrompt").textContent = "Check your Repertoire tab to refresh at any time.";
+}
+
+/* =========================================================
+   CONTROLS & HELPERS
+========================================================= */
+
+document.getElementById("hintButton").addEventListener("click", () => {
+    const step = getCurrentStep();
+    const feedback = document.getElementById("feedback");
+    if (!step) {
+        feedback.textContent = "Click Continue to move on.";
+        return;
+    }
+    feedback.textContent = `Hint: move piece from ${step.from.toUpperCase()} to ${step.to.toUpperCase()}.`;
+    feedback.className = "feedback";
 });
 
-
-/* =========================================================
-   REPERTOIRE
-========================================================= */
-
-function updateRepertoire(){
-const container=document.getElementById("repertoireContent");
-
-const learnedOpenings=Object.entries(OPENINGS).filter(([id])=>isOpeningLearned(id));
-
-if(learnedOpenings.length===0){
-container.innerHTML='<div class="placeholder">You have not learned any openings yet.</div>';
-return;
-}
-
-container.innerHTML="";
-
-learnedOpenings.forEach(([id,opening])=>{
-const card=document.createElement("div");
-card.className="repertoire-card";
-
-card.innerHTML=`<h3>${escapeHTML(opening.name)}</h3><p>Learned. You completed the lesson for this opening.</p><button class="primary" data-refresh="${escapeHTML(id)}">Refresh ${escapeHTML(opening.name)}</button>`;
-
-card.querySelector("[data-refresh]").addEventListener("click",()=>{
-document.querySelector('[data-page="learn"]').click();
-selectOpening(id);
+document.getElementById("explainButton").addEventListener("click", () => {
+    const step = getCurrentStep();
+    const feedback = document.getElementById("feedback");
+    if (!step) return;
+    feedback.textContent = step.explanation || "This move maintains central control and active development.";
+    feedback.className = "feedback";
 });
 
-container.appendChild(card);
-});
-}
+function resetLesson() {
+    pieces = { ...startingPosition };
+    selectedSquare = null;
+    inputLocked = false;
+    currentStep = 0;
 
+    enterStep();
+}
 
 /* =========================================================
-   RESET
+   REPERTOIRE TAB
 ========================================================= */
 
-function resetLesson(){
-const opening=getCurrentOpening();
+function updateRepertoire() {
+    const container = document.getElementById("repertoireContent");
+    const learnedKeys = Object.keys(OPENINGS).filter(k => localStorage.getItem(`${k}_learned`) === "true");
 
-pieces=clonePosition(opening.startingPosition||startingPosition);
-selectedSquare=null;
-inputLocked=false;
-currentStage="intro";
-currentStep=0;
-wrongAttempts=0;
+    if (learnedKeys.length === 0) {
+        container.innerHTML = `<div class="placeholder">You have not learned any openings yet. Complete lessons in the Learn tab to populate your repertoire!</div>`;
+        return;
+    }
 
-updateOpeningHeader();
-renderBoard();
-enterStep();
+    let html = `<div class="repertoire-grid">`;
+    learnedKeys.forEach(k => {
+        const op = OPENINGS[k];
+        html += `
+            <div class="repertoire-card">
+                <h3>${op.name} (${op.color.toUpperCase()})</h3>
+                <p>${op.description}</p>
+                <button class="primary refresh-btn" data-key="${k}">Refresh Opening</button>
+            </div>
+        `;
+    });
+    html += `</div>`;
+
+    container.innerHTML = html;
+
+    document.querySelectorAll(".refresh-btn").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            const key = e.target.dataset.key;
+            document.querySelector('[data-page="learn"]').click();
+            selectOpening(key);
+        });
+    });
 }
-
-
-/* =========================================================
-   ESCAPE HTML
-========================================================= */
-
-function escapeHTML(value){
-return String(value).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
-}
-
 
 /* =========================================================
    INITIALIZE
 ========================================================= */
 
-renderOpeningLibrary();
-loadCompletedStages();
-resetLesson();
+renderOpeningList();
+loadOpeningData();
 
 </script>
+
 </body>
 </html>
