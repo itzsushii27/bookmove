@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chess Opening Trainer</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #f3f4f6;
+        color: #171717;
+    }
+
+    button {
+        font: inherit;
+    }
+
+    header {
+        background: #171717;
+        color: white;
+        padding: 18px 24px 0;
+    }
+
+    header h1 {
+        margin: 0 0 16px;
+        font-size: 24px;
+    }
+
+    .tabs {
+        display: flex;
+        gap: 6px;
+        max-width: 1000px;
+        margin: auto;
+    }
+
+    .tab {
+        border: 0;
+        background: transparent;
+        color: #aaa;
+        padding: 12px 20px;
+        cursor: pointer;
+        border-bottom: 3px solid transparent;
+    }
+
+    .tab.active {
+        color: white;
+        border-bottom-color: white;
+    }
+
+    main {
+        max-width: 1000px;
+        margin: auto;
+        padding: 28px 20px 50px;
+    }
+
+    .page {
+        display: none;
+    }
+
+    .page.active {
+        display: block;
+    }
+
+    .page-header {
+        margin-bottom: 24px;
+    }
+
+    .page-header h2 {
+        margin: 0 0 7px;
+        font-size: 28px;
+    }
+
+    .page-header p {
+        margin: 0;
+        color: #666;
+    }
+
+    .learn-layout {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 20px;
+    }
+
+    .panel {
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 18px;
+    }
+
+    .panel h3 {
+        margin: 0 0 14px;
+    }
+
+    .opening-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .opening {
+        width: 100%;
+        text-align: left;
+        border: 1px solid #ddd;
+        background: #fafafa;
+        border-radius: 7px;
+        padding: 12px;
+        cursor: pointer;
+    }
+
+    .opening:hover,
+    .opening.selected {
+        background: #eee;
+        border-color: #999;
+    }
+
+    .opening:disabled {
+        cursor: default;
+        opacity: .55;
+    }
+
+    .opening-name {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 4px;
+    }
+
+    .opening-meta {
+        color: #777;
+        font-size: 13px;
+    }
+
+    .lesson-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 15px;
+        margin-bottom: 18px;
+    }
+
+    .lesson-top h3 {
+        margin: 0 0 6px;
+        font-size: 24px;
+    }
+
+    .difficulty {
+        border: 1px solid #ccc;
+        border-radius: 999px;
+        padding: 4px 9px;
+        font-size: 12px;
+        color: #666;
+        height: fit-content;
+    }
+
+    .board-area {
+        display: grid;
+        grid-template-columns: minmax(280px, 520px) 1fr;
+        gap: 22px;
+        align-items: start;
+    }
+
+    .board {
+        width: 100%;
+        aspect-ratio: 1;
+        display: grid;
+        grid-template-columns: repeat(8, 1fr);
+        border: 2px solid #222;
+    }
+
+    .square {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: clamp(25px, 5vw, 52px);
+        user-select: none;
+        cursor: pointer;
+    }
+
+    .square.light {
+        background: #f0d9b5;
+    }
+
+    .square.dark {
+        background: #b58863;
+    }
+
+    .square.selected {
+        outline: 4px solid #555;
+        outline-offset: -4px;
+    }
+
+    .lesson-content {
+        min-height: 300px;
+    }
+
+    .lesson-content h4 {
+        margin: 0 0 10px;
+        font-size: 18px;
+    }
+
+    .lesson-text {
+        line-height: 1.55;
+        color: #333;
+        margin-bottom: 18px;
+    }
+
+    .move-prompt {
+        background: #f1f1f1;
+        border-radius: 8px;
+        padding: 14px;
+        margin-bottom: 14px;
+        font-weight: bold;
+    }
+
+    .feedback {
+        min-height: 24px;
+        margin-bottom: 12px;
+        font-size: 14px;
+    }
+
+    .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .primary,
+    .secondary {
+        border-radius: 7px;
+        padding: 10px 15px;
+        cursor: pointer;
+    }
+
+    .primary {
+        border: 0;
+        background: #222;
+        color: white;
+    }
+
+    .secondary {
+        border: 1px solid #ccc;
+        background: white;
+    }
+
+    .progress {
+        height: 6px;
+        background: #e5e5e5;
+        border-radius: 999px;
+        overflow: hidden;
+        margin-top: 20px;
+    }
+
+    .progress-bar {
+        height: 100%;
+        width: 0%;
+        background: #555;
+        transition: width .25s ease;
+    }
+
+    .hidden {
+        display: none !important;
+    }
+
+    .placeholder {
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 30px;
+        color: #666;
+    }
+
+    @media (max-width: 750px) {
+        .learn-layout,
+        .board-area {
+            grid-template-columns: 1fr;
+        }
+
+        main {
+            padding-left: 12px;
+            padding-right: 12px;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>Chess Opening Trainer</h1>
+
+    <nav class="tabs">
+        <button class="tab" data-page="practice">Practice</button>
+        <button class="tab active" data-page="learn">Learn</button>
+        <button class="tab" data-page="repertoire">Repertoire</button>
+    </nav>
+</header>
+
+<main>
+
+    <!-- PRACTICE -->
+    <section id="practice" class="page">
+        <div class="page-header">
+            <h2>Practice</h2>
+            <p>Practice openings against practical, rating-based responses.</p>
+        </div>
+
+        <div class="placeholder">
+            Practice mode will be built after Learn.
+        </div>
+    </section>
+
+
+    <!-- LEARN -->
+    <section id="learn" class="page active">
+
+        <div class="page-header">
+            <h2>Learn</h2>
+            <p>Learn openings through guided play, explanations, variations, and tactics.</p>
+        </div>
+
+        <div class="learn-layout">
+
+            <aside class="panel">
+                <h3>Opening Library</h3>
+
+                <div class="opening-list">
+
+                    <button class="opening selected" data-opening="scotch-gambit">
+                        <span class="opening-name">Scotch Gambit</span>
+                        <span class="opening-meta">Advanced</span>
+                    </button>
+
+                    <button class="opening" disabled>
+                        <span class="opening-name">More openings coming</span>
+                        <span class="opening-meta">Library expansion</span>
+                    </button>
+
+                </div>
+            </aside>
+
+
+            <section class="panel">
+
+                <div id="scotchLesson">
+
+                    <div class="lesson-top">
+
+                        <div>
+                            <h3>Scotch Gambit</h3>
+
+                            <div class="opening-meta">
+                                An aggressive opening that gives up a pawn for rapid development.
+                            </div>
+                        </div>
+
+                        <span class="difficulty">Advanced</span>
+
+                    </div>
+
+
+                    <div class="board-area">
+
+                        <div>
+
+                            <div id="board" class="board"></div>
+
+                            <div class="progress">
+                                <div id="progressBar" class="progress-bar"></div>
+                            </div>
+
+                        </div>
+
+
+                        <div class="lesson-content">
+
+                            <h4 id="lessonTitle">
+                                Let's begin.
+                            </h4>
+
+                            <div id="lessonText" class="lesson-text">
+                                Today I will teach you the Scotch Gambit.
+                            </div>
+
+                            <div id="movePrompt" class="move-prompt">
+                                First, play e4.
+                            </div>
+
+                            <div id="feedback" class="feedback"></div>
+
+                            <div class="controls">
+                                <button id="hintButton" class="secondary">
+                                    Hint
+                                </button>
+
+                                <button id="explainButton" class="secondary">
+                                    Explain Further
+                                </button>
+
+                                <button id="nextButton" class="primary hidden">
+                                    Continue
+                                </button>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </div>
+
+    </section>
+
+
+    <!-- REPERTOIRE -->
+    <section id="repertoire" class="page">
+
+        <div class="page-header">
+            <h2>Repertoire</h2>
+            <p>Your learned openings and quick refreshers.</p>
+        </div>
+
+        <div class="placeholder">
+            You have not learned any openings yet.
+        </div>
+
+    </section>
+
+</main>
+
+
+<script>
+
+/* =========================
+   TAB SYSTEM
+========================= */
+
+const tabs = document.querySelectorAll(".tab");
+const pages = document.querySelectorAll(".page");
+
+tabs.forEach(tab => {
+
+    tab.addEventListener("click", () => {
+
+        const target = tab.dataset.page;
+
+        tabs.forEach(t => t.classList.remove("active"));
+        pages.forEach(p => p.classList.remove("active"));
+
+        tab.classList.add("active");
+        document.getElementById(target).classList.add("active");
+
+    });
+
+});
+
+
+/* =========================
+   SIMPLE CHESS BOARD
+========================= */
+
+const startingPosition = {
+
+    a8:"♜", b8:"♞", c8:"♝", d8:"♛",
+    e8:"♚", f8:"♝", g8:"♞", h8:"♜",
+
+    a7:"♟", b7:"♟", c7:"♟", d7:"♟",
+    e7:"♟", f7:"♟", g7:"♟", h7:"♟",
+
+    a2:"♙", b2:"♙", c2:"♙", d2:"♙",
+    e2:"♙", f2:"♙", g2:"♙", h2:"♙",
+
+    a1:"♖", b1:"♘", c1:"♗", d1:"♕",
+    e1:"♔", f1:"♗", g1:"♘", h1:"♖"
+};
+
+let pieces = {};
+let selectedSquare = null;
+
+
+/* =========================
+   LESSON DATA
+========================= */
+
+const lessonSteps = [
+
+    {
+        title: "Start with the center",
+
+        text:
+            "The Scotch Gambit begins with 1. e4. " +
+            "This immediately fights for the center and opens lines " +
+            "for your pieces.",
+
+        prompt: "First, play e4.",
+
+        from: "e2",
+        to: "e4"
+    },
+
+    {
+        title: "Develop with tempo",
+
+        text:
+            "Your opponent responded with e5. " +
+            "Now develop your king's knight with Nf3, " +
+            "attacking the e5-pawn.",
+
+        prompt: "Now play Nf3.",
+
+        from: "g1",
+        to: "f3"
+    },
+
+    {
+        title: "Fight for the center",
+
+        text:
+            "Your opponent played Nc6. " +
+            "Now play d4. This is the Scotch Game, " +
+            "challenging Black's central pawn immediately.",
+
+        prompt: "Play d4.",
+
+        from: "d2",
+        to: "d4"
+    },
+
+    {
+        title: "The gambit",
+
+        text:
+            "Black took the pawn with exd4. " +
+            "Instead of immediately recapturing, play Bc4. " +
+            "This is the Scotch Gambit.",
+
+        prompt: "Play Bc4.",
+
+        from: "f1",
+        to: "c4"
+    }
+
+];
+
+let lessonStep = 0;
+
+
+/* =========================
+   RENDER BOARD
+========================= */
+
+function renderBoard() {
+
+    const board = document.getElementById("board");
+
+    board.innerHTML = "";
+
+    for (let rank = 8; rank >= 1; rank--) {
+
+        for (let fileIndex = 0; fileIndex < 8; fileIndex++) {
+
+            const file =
+                String.fromCharCode(97 + fileIndex);
+
+            const squareName =
+                file + rank;
+
+            const square =
+                document.createElement("div");
+
+            square.className =
+                "square " +
+                ((fileIndex + rank) % 2 === 0
+                    ? "dark"
+                    : "light");
+
+            if (squareName === selectedSquare) {
+                square.classList.add("selected");
+            }
+
+            square.textContent =
+                pieces[squareName] || "";
+
+            square.addEventListener(
+                "click",
+                () => handleSquareClick(squareName)
+            );
+
+            board.appendChild(square);
+        }
+    }
+}
+
+
+/* =========================
+   MOVE INPUT
+========================= */
+
+function handleSquareClick(squareName) {
+
+    const step = lessonSteps[lessonStep];
+
+    if (!step) return;
+
+
+    if (!selectedSquare) {
+
+        if (pieces[squareName]) {
+
+            selectedSquare = squareName;
+            renderBoard();
+
+        }
+
+        return;
+    }
+
+
+    if (squareName === selectedSquare) {
+
+        selectedSquare = null;
+        renderBoard();
+
+        return;
+    }
+
+
+    if (
+        selectedSquare === step.from &&
+        squareName === step.to
+    ) {
+
+        makeLessonMove(
+            selectedSquare,
+            squareName
+        );
+
+        selectedSquare = null;
+
+        renderBoard();
+
+        document.getElementById("feedback").textContent =
+            "Correct!";
+
+        document
+            .getElementById("nextButton")
+            .classList.remove("hidden");
+
+    } else {
+
+        document.getElementById("feedback").textContent =
+            "That's not the move we're looking for. Try again.";
+
+        selectedSquare = null;
+        renderBoard();
+    }
+}
+
+
+/* =========================
+   SCRIPTED OPPONENT MOVES
+========================= */
+
+function makeLessonMove(from, to) {
+
+    pieces[to] = pieces[from];
+    delete pieces[from];
+
+
+    if (lessonStep === 0) {
+
+        pieces["e5"] = pieces["e7"];
+        delete pieces["e7"];
+
+    }
+
+    else if (lessonStep === 1) {
+
+        pieces["c6"] = pieces["b8"];
+        delete pieces["b8"];
+
+    }
+
+    else if (lessonStep === 2) {
+
+        pieces["d4"] = pieces["e5"];
+        delete pieces["e5"];
+
+    }
+
+}
+
+
+/* =========================
+   LESSON UI
+========================= */
+
+function updateLesson() {
+
+    const title =
+        document.getElementById("lessonTitle");
+
+    const text =
+        document.getElementById("lessonText");
+
+    const prompt =
+        document.getElementById("movePrompt");
+
+    const feedback =
+        document.getElementById("feedback");
+
+    const next =
+        document.getElementById("nextButton");
+
+    const progress =
+        document.getElementById("progressBar");
+
+
+    if (lessonStep >= lessonSteps.length) {
+
+        title.textContent =
+            "Scotch Gambit complete";
+
+        text.textContent =
+            "You've reached the Scotch Gambit. " +
+            "Next we'll teach the major variations, " +
+            "key ideas, and tactical motifs.";
+
+        prompt.textContent =
+            "Lesson complete — more variations coming next.";
+
+        feedback.textContent = "";
+
+        next.classList.add("hidden");
+
+        progress.style.width = "100%";
+
+        return;
+    }
+
+
+    const step =
+        lessonSteps[lessonStep];
+
+    title.textContent =
+        step.title;
+
+    text.textContent =
+        step.text;
+
+    prompt.textContent =
+        step.prompt;
+
+    feedback.textContent = "";
+
+    next.classList.add("hidden");
+
+    progress.style.width =
+        (lessonStep / lessonSteps.length * 100) + "%";
+}
+
+
+/* =========================
+   BUTTONS
+========================= */
+
+document
+    .getElementById("nextButton")
+    .addEventListener("click", () => {
+
+        lessonStep++;
+
+        updateLesson();
+    });
+
+
+document
+    .getElementById("hintButton")
+    .addEventListener("click", () => {
+
+        const step =
+            lessonSteps[lessonStep];
+
+        if (!step) return;
+
+        document.getElementById("feedback").textContent =
+            "Hint: move the piece from " +
+            step.from.toUpperCase() +
+            " to " +
+            step.to.toUpperCase() +
+            ".";
+    });
+
+
+document
+    .getElementById("explainButton")
+    .addEventListener("click", () => {
+
+        const explanations = [
+
+            "e4 claims central space and opens the diagonal for the f1 bishop.",
+
+            "Nf3 develops a piece toward the center while putting pressure on e5.",
+
+            "d4 challenges Black's central pawn and creates the tactical foundation for the Scotch Game.",
+
+            "Bc4 prioritizes rapid development instead of immediately recovering the pawn. The resulting initiative is the point of the gambit."
+
+        ];
+
+        document.getElementById("feedback").textContent =
+            explanations[lessonStep] || "";
+    });
+
+
+/* =========================
+   RESET
+========================= */
+
+function resetLesson() {
+
+    pieces = {
+        ...startingPosition
+    };
+
+    selectedSquare = null;
+    lessonStep = 0;
+
+    updateLesson();
+    renderBoard();
+}
+
+
+/* Start */
+resetLesson();
+
+</script>
+
+</body>
+</html>
