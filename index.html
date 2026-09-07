@@ -6,441 +6,574 @@
 <title>Chess Opening Trainer</title>
 
 <style>
-    * {
-        box-sizing: border-box;
-    }
+* {
+    box-sizing: border-box;
+}
 
-    body {
-        margin: 0;
-        font-family: Arial, sans-serif;
-        background: #f3f4f6;
-        color: #171717;
-    }
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f3f4f6;
+    color: #171717;
+}
 
-    button {
-        font: inherit;
-    }
+button {
+    font: inherit;
+}
 
-    header {
-        background: #171717;
-        color: white;
-        padding: 18px 24px 0;
-    }
+header {
+    background: #171717;
+    color: white;
+    padding: 18px 24px 0;
+}
 
-    header h1 {
-        margin: 0 0 16px;
-        font-size: 24px;
-    }
+header h1 {
+    margin: 0 0 16px;
+    font-size: 24px;
+}
 
-    .tabs {
-        display: flex;
-        gap: 6px;
-        max-width: 1000px;
-        margin: auto;
-    }
+.tabs {
+    display: flex;
+    gap: 6px;
+    max-width: 1000px;
+    margin: auto;
+}
 
-    .tab {
-        border: 0;
-        background: transparent;
-        color: #aaa;
-        padding: 12px 20px;
-        cursor: pointer;
-        border-bottom: 3px solid transparent;
-    }
+.tab {
+    border: 0;
+    background: transparent;
+    color: #aaa;
+    padding: 12px 20px;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+}
 
-    .tab.active {
-        color: white;
-        border-bottom-color: white;
+.tab:hover {
+    color: white;
+}
+
+.tab.active {
+    color: white;
+    border-bottom-color: white;
+}
+
+main {
+    max-width: 1000px;
+    margin: auto;
+    padding: 28px 20px 50px;
+}
+
+.page {
+    display: none;
+}
+
+.page.active {
+    display: block;
+}
+
+.page-header {
+    margin-bottom: 24px;
+}
+
+.page-header h2 {
+    margin: 0 0 7px;
+    font-size: 28px;
+}
+
+.page-header p {
+    margin: 0;
+    color: #666;
+}
+
+.learn-layout {
+    display: grid;
+    grid-template-columns: 280px minmax(0, 1fr);
+    gap: 20px;
+}
+
+.panel {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 18px;
+}
+
+.panel h3 {
+    margin: 0 0 14px;
+}
+
+.opening-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.opening {
+    width: 100%;
+    text-align: left;
+    border: 1px solid #ddd;
+    background: #fafafa;
+    border-radius: 7px;
+    padding: 12px;
+    cursor: pointer;
+}
+
+.opening:hover,
+.opening.selected {
+    background: #eee;
+    border-color: #999;
+}
+
+.opening:disabled {
+    cursor: default;
+    opacity: .55;
+}
+
+.opening-name {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.opening-meta {
+    color: #777;
+    font-size: 13px;
+}
+
+.lesson-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 18px;
+}
+
+.lesson-top h3 {
+    margin: 0 0 6px;
+    font-size: 24px;
+}
+
+.difficulty {
+    border: 1px solid #ccc;
+    border-radius: 999px;
+    padding: 4px 9px;
+    font-size: 12px;
+    color: #666;
+    height: fit-content;
+    white-space: nowrap;
+}
+
+.board-area {
+    display: grid;
+    grid-template-columns: minmax(280px, 520px) minmax(0, 1fr);
+    gap: 22px;
+    align-items: start;
+}
+
+/* =========================
+   CHESS BOARD
+========================= */
+
+.board {
+    width: 100%;
+    max-width: 520px;
+    aspect-ratio: 1 / 1;
+
+    display: grid;
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    grid-template-rows: repeat(8, minmax(0, 1fr));
+
+    overflow: hidden;
+    border: 2px solid #222;
+}
+
+.square {
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+
+    position: relative;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+    user-select: none;
+}
+
+.square.light {
+    background: #f0d9b5;
+}
+
+.square.dark {
+    background: #b58863;
+}
+
+.square.selected {
+    box-shadow: inset 0 0 0 4px rgba(255,255,255,.65);
+}
+
+.piece {
+    width: 82%;
+    height: 82%;
+
+    display: block;
+
+    pointer-events: none;
+    user-select: none;
+}
+
+.progress {
+    width: 100%;
+    max-width: 520px;
+
+    height: 6px;
+
+    background: #e5e5e5;
+    border-radius: 999px;
+
+    overflow: hidden;
+    margin-top: 14px;
+}
+
+.progress-bar {
+    height: 100%;
+    width: 0%;
+
+    background: #555;
+
+    transition: width .25s ease;
+}
+
+.lesson-content {
+    min-height: 300px;
+}
+
+.lesson-content h4 {
+    margin: 0 0 10px;
+    font-size: 18px;
+}
+
+.lesson-text {
+    line-height: 1.55;
+    color: #333;
+    margin-bottom: 18px;
+}
+
+.move-prompt {
+    background: #f1f1f1;
+    border-radius: 8px;
+    padding: 14px;
+    margin-bottom: 14px;
+    font-weight: bold;
+}
+
+.feedback {
+    min-height: 24px;
+    margin-bottom: 12px;
+    font-size: 14px;
+}
+
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.secondary {
+    border: 1px solid #ccc;
+    background: white;
+    border-radius: 7px;
+    padding: 10px 15px;
+    cursor: pointer;
+}
+
+.secondary:hover {
+    background: #f3f3f3;
+}
+
+.placeholder {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 30px;
+    color: #666;
+}
+
+.hidden {
+    display: none !important;
+}
+
+@media (max-width: 750px) {
+
+    .learn-layout,
+    .board-area {
+        grid-template-columns: 1fr;
     }
 
     main {
-        max-width: 1000px;
-        margin: auto;
-        padding: 28px 20px 50px;
-    }
-
-    .page {
-        display: none;
-    }
-
-    .page.active {
-        display: block;
-    }
-
-    .page-header {
-        margin-bottom: 24px;
-    }
-
-    .page-header h2 {
-        margin: 0 0 7px;
-        font-size: 28px;
-    }
-
-    .page-header p {
-        margin: 0;
-        color: #666;
-    }
-
-    .learn-layout {
-        display: grid;
-        grid-template-columns: 280px 1fr;
-        gap: 20px;
-    }
-
-    .panel {
-        background: white;
-        border: 1px solid #ddd;
-        border-radius: 10px;
-        padding: 18px;
-    }
-
-    .panel h3 {
-        margin: 0 0 14px;
-    }
-
-    .opening-list {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .opening {
-        width: 100%;
-        text-align: left;
-        border: 1px solid #ddd;
-        background: #fafafa;
-        border-radius: 7px;
-        padding: 12px;
-        cursor: pointer;
-    }
-
-    .opening:hover,
-    .opening.selected {
-        background: #eee;
-        border-color: #999;
-    }
-
-    .opening:disabled {
-        cursor: default;
-        opacity: .55;
-    }
-
-    .opening-name {
-        display: block;
-        font-weight: bold;
-        margin-bottom: 4px;
-    }
-
-    .opening-meta {
-        color: #777;
-        font-size: 13px;
-    }
-
-    .lesson-top {
-        display: flex;
-        justify-content: space-between;
-        gap: 15px;
-        margin-bottom: 18px;
-    }
-
-    .lesson-top h3 {
-        margin: 0 0 6px;
-        font-size: 24px;
-    }
-
-    .difficulty {
-        border: 1px solid #ccc;
-        border-radius: 999px;
-        padding: 4px 9px;
-        font-size: 12px;
-        color: #666;
-        height: fit-content;
-    }
-
-    .board-area {
-        display: grid;
-        grid-template-columns: minmax(280px, 520px) 1fr;
-        gap: 22px;
-        align-items: start;
+        padding-left: 12px;
+        padding-right: 12px;
     }
 
     .board {
-        width: 100%;
-        aspect-ratio: 1;
-        display: grid;
-        grid-template-columns: repeat(8, 1fr);
-        border: 2px solid #222;
+        margin: 0 auto;
     }
-
-    .square {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: clamp(25px, 5vw, 52px);
-        user-select: none;
-        cursor: pointer;
-    }
-
-    .square.light {
-        background: #f0d9b5;
-    }
-
-    .square.dark {
-        background: #b58863;
-    }
-
-    .square.selected {
-        outline: 4px solid #555;
-        outline-offset: -4px;
-    }
-
-    .lesson-content {
-        min-height: 300px;
-    }
-
-    .lesson-content h4 {
-        margin: 0 0 10px;
-        font-size: 18px;
-    }
-
-    .lesson-text {
-        line-height: 1.55;
-        color: #333;
-        margin-bottom: 18px;
-    }
-
-    .move-prompt {
-        background: #f1f1f1;
-        border-radius: 8px;
-        padding: 14px;
-        margin-bottom: 14px;
-        font-weight: bold;
-    }
-
-    .feedback {
-        min-height: 24px;
-        margin-bottom: 12px;
-        font-size: 14px;
-    }
-
-    .controls {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-    }
-
-    .primary,
-    .secondary {
-        border-radius: 7px;
-        padding: 10px 15px;
-        cursor: pointer;
-    }
-
-    .primary {
-        border: 0;
-        background: #222;
-        color: white;
-    }
-
-    .secondary {
-        border: 1px solid #ccc;
-        background: white;
-    }
-
-    .progress {
-        height: 6px;
-        background: #e5e5e5;
-        border-radius: 999px;
-        overflow: hidden;
-        margin-top: 20px;
-    }
-
-    .progress-bar {
-        height: 100%;
-        width: 0%;
-        background: #555;
-        transition: width .25s ease;
-    }
-
-    .hidden {
-        display: none !important;
-    }
-
-    .placeholder {
-        background: white;
-        border: 1px solid #ddd;
-        border-radius: 10px;
-        padding: 30px;
-        color: #666;
-    }
-
-    @media (max-width: 750px) {
-        .learn-layout,
-        .board-area {
-            grid-template-columns: 1fr;
-        }
-
-        main {
-            padding-left: 12px;
-            padding-right: 12px;
-        }
-    }
+}
 </style>
 </head>
 
 <body>
 
 <header>
+
     <h1>Chess Opening Trainer</h1>
 
     <nav class="tabs">
-        <button class="tab" data-page="practice">Practice</button>
-        <button class="tab active" data-page="learn">Learn</button>
-        <button class="tab" data-page="repertoire">Repertoire</button>
+        <button class="tab" data-page="practice">
+            Practice
+        </button>
+
+        <button class="tab active" data-page="learn">
+            Learn
+        </button>
+
+        <button class="tab" data-page="repertoire">
+            Repertoire
+        </button>
     </nav>
+
 </header>
+
 
 <main>
 
-    <!-- PRACTICE -->
-    <section id="practice" class="page">
-        <div class="page-header">
-            <h2>Practice</h2>
-            <p>Practice openings against practical, rating-based responses.</p>
-        </div>
+<!-- =========================
+     PRACTICE
+========================= -->
 
-        <div class="placeholder">
-            Practice mode will be built after Learn.
-        </div>
-    </section>
+<section id="practice" class="page">
 
+    <div class="page-header">
+        <h2>Practice</h2>
+        <p>
+            Practice openings against practical, rating-based responses.
+        </p>
+    </div>
 
-    <!-- LEARN -->
-    <section id="learn" class="page active">
+    <div class="placeholder">
+        Practice mode will be built after Learn.
+    </div>
 
-        <div class="page-header">
-            <h2>Learn</h2>
-            <p>Learn openings through guided play, explanations, variations, and tactics.</p>
-        </div>
-
-        <div class="learn-layout">
-
-            <aside class="panel">
-                <h3>Opening Library</h3>
-
-                <div class="opening-list">
-
-                    <button class="opening selected" data-opening="scotch-gambit">
-                        <span class="opening-name">Scotch Gambit</span>
-                        <span class="opening-meta">Advanced</span>
-                    </button>
-
-                    <button class="opening" disabled>
-                        <span class="opening-name">More openings coming</span>
-                        <span class="opening-meta">Library expansion</span>
-                    </button>
-
-                </div>
-            </aside>
+</section>
 
 
-            <section class="panel">
+<!-- =========================
+     LEARN
+========================= -->
 
-                <div id="scotchLesson">
+<section id="learn" class="page active">
 
-                    <div class="lesson-top">
+    <div class="page-header">
 
-                        <div>
-                            <h3>Scotch Gambit</h3>
+        <h2>Learn</h2>
 
-                            <div class="opening-meta">
-                                An aggressive opening that gives up a pawn for rapid development.
-                            </div>
-                        </div>
+        <p>
+            Learn openings through guided play, explanations,
+            variations, and tactics.
+        </p>
 
-                        <span class="difficulty">Advanced</span>
-
-                    </div>
-
-
-                    <div class="board-area">
-
-                        <div>
-
-                            <div id="board" class="board"></div>
-
-                            <div class="progress">
-                                <div id="progressBar" class="progress-bar"></div>
-                            </div>
-
-                        </div>
+    </div>
 
 
-                        <div class="lesson-content">
+    <div class="learn-layout">
 
-                            <h4 id="lessonTitle">
-                                Let's begin.
-                            </h4>
 
-                            <div id="lessonText" class="lesson-text">
-                                Today I will teach you the Scotch Gambit.
-                            </div>
+        <!-- OPENING LIBRARY -->
 
-                            <div id="movePrompt" class="move-prompt">
-                                First, play e4.
-                            </div>
+        <aside class="panel">
 
-                            <div id="feedback" class="feedback"></div>
+            <h3>Opening Library</h3>
 
-                            <div class="controls">
-                                <button id="hintButton" class="secondary">
-                                    Hint
-                                </button>
+            <div class="opening-list">
 
-                                <button id="explainButton" class="secondary">
-                                    Explain Further
-                                </button>
+                <button
+                    class="opening selected"
+                    data-opening="scotch-gambit"
+                >
+                    <span class="opening-name">
+                        Scotch Gambit
+                    </span>
 
-                                <button id="nextButton" class="primary hidden">
-                                    Continue
-                                </button>
-                            </div>
+                    <span class="opening-meta">
+                        Advanced
+                    </span>
+                </button>
 
+
+                <button
+                    class="opening"
+                    disabled
+                >
+                    <span class="opening-name">
+                        More openings coming
+                    </span>
+
+                    <span class="opening-meta">
+                        Library expansion
+                    </span>
+                </button>
+
+            </div>
+
+        </aside>
+
+
+        <!-- LESSON -->
+
+        <section class="panel">
+
+            <div id="scotchLesson">
+
+
+                <div class="lesson-top">
+
+                    <div>
+
+                        <h3>
+                            Scotch Gambit
+                        </h3>
+
+                        <div class="opening-meta">
+                            An aggressive opening that gives up a pawn
+                            for rapid development.
                         </div>
 
                     </div>
 
+                    <span class="difficulty">
+                        Advanced
+                    </span>
+
                 </div>
 
-            </section>
 
-        </div>
-
-    </section>
+                <div class="board-area">
 
 
-    <!-- REPERTOIRE -->
-    <section id="repertoire" class="page">
+                    <div>
 
-        <div class="page-header">
-            <h2>Repertoire</h2>
-            <p>Your learned openings and quick refreshers.</p>
-        </div>
+                        <div
+                            id="board"
+                            class="board"
+                        ></div>
 
-        <div class="placeholder">
-            You have not learned any openings yet.
-        </div>
 
-    </section>
+                        <div class="progress">
+
+                            <div
+                                id="progressBar"
+                                class="progress-bar"
+                            ></div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="lesson-content">
+
+                        <h4 id="lessonTitle">
+                            Let's begin.
+                        </h4>
+
+
+                        <div
+                            id="lessonText"
+                            class="lesson-text"
+                        >
+                            Today I will teach you the Scotch Gambit.
+                        </div>
+
+
+                        <div
+                            id="movePrompt"
+                            class="move-prompt"
+                        >
+                            First, play e4.
+                        </div>
+
+
+                        <div
+                            id="feedback"
+                            class="feedback"
+                        ></div>
+
+
+                        <div class="controls">
+
+                            <button
+                                id="hintButton"
+                                class="secondary"
+                            >
+                                Hint
+                            </button>
+
+
+                            <button
+                                id="explainButton"
+                                class="secondary"
+                            >
+                                Explain Further
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     REPERTOIRE
+========================= -->
+
+<section id="repertoire" class="page">
+
+    <div class="page-header">
+
+        <h2>Repertoire</h2>
+
+        <p>
+            Your learned openings and quick refreshers.
+        </p>
+
+    </div>
+
+
+    <div class="placeholder">
+        You have not learned any openings yet.
+    </div>
+
+</section>
 
 </main>
 
 
 <script>
 
-/* =========================
-   TAB SYSTEM
-========================= */
+/* =========================================================
+   TABS
+========================================================= */
 
 const tabs = document.querySelectorAll(".tab");
 const pages = document.querySelectorAll(".page");
@@ -451,43 +584,268 @@ tabs.forEach(tab => {
 
         const target = tab.dataset.page;
 
-        tabs.forEach(t => t.classList.remove("active"));
-        pages.forEach(p => p.classList.remove("active"));
+        tabs.forEach(t =>
+            t.classList.remove("active")
+        );
+
+        pages.forEach(p =>
+            p.classList.remove("active")
+        );
 
         tab.classList.add("active");
-        document.getElementById(target).classList.add("active");
+
+        document
+            .getElementById(target)
+            .classList.add("active");
 
     });
 
 });
 
 
-/* =========================
-   SIMPLE CHESS BOARD
-========================= */
+/* =========================================================
+   PIECE ARTWORK
+   Custom SVG pieces.
+========================================================= */
+
+const pieceSVG = {
+
+    wP: `
+        <svg class="piece" viewBox="0 0 100 100">
+            <g fill="#fff" stroke="#222" stroke-width="3">
+                <circle cx="50" cy="30" r="15"/>
+                <path d="M38 45 L62 45 L68 65 L78 78 L22 78 L32 65 Z"/>
+                <path d="M20 82 L80 82 L84 90 L16 90 Z"/>
+            </g>
+        </svg>
+    `,
+
+    wN: `
+        <svg class="piece" viewBox="0 0 100 100">
+            <g fill="#fff" stroke="#222" stroke-width="3"
+               stroke-linejoin="round">
+                <path d="M25 83
+                         L30 65
+                         C20 48 25 25 48 18
+                         L62 28
+                         L72 18
+                         L78 34
+                         C69 39 66 47 70 56
+                         L80 83 Z"/>
+                <path d="M20 86 L82 86 L84 92 L16 92 Z"/>
+            </g>
+            <circle cx="57" cy="34" r="3" fill="#222"/>
+        </svg>
+    `,
+
+    wB: `
+        <svg class="piece" viewBox="0 0 100 100">
+            <g fill="#fff" stroke="#222" stroke-width="3"
+               stroke-linejoin="round">
+                <path d="M50 14
+                         C38 25 31 36 38 48
+                         C42 55 35 65 29 73
+                         L71 73
+                         C65 65 58 55 62 48
+                         C69 36 62 25 50 14 Z"/>
+                <path d="M25 78 L75 78 L80 87 L20 87 Z"/>
+                <path d="M18 89 L82 89 L84 94 L16 94 Z"/>
+            </g>
+            <path d="M43 27 L57 43" stroke="#222" stroke-width="4"/>
+        </svg>
+    `,
+
+    wR: `
+        <svg class="piece" viewBox="0 0 100 100">
+            <g fill="#fff" stroke="#222" stroke-width="3"
+               stroke-linejoin="round">
+                <path d="M25 18 L25 31 L31 31 L31 70 L25 79
+                         L75 79 L69 70 L69 31 L75 31 L75 18
+                         L64 18 L64 25 L55 25 L55 18
+                         L45 18 L45 25 L36 25 L36 18 Z"/>
+                <path d="M20 82 L80 82 L83 91 L17 91 Z"/>
+            </g>
+        </svg>
+    `,
+
+    wQ: `
+        <svg class="piece" viewBox="0 0 100 100">
+            <g fill="#fff" stroke="#222" stroke-width="3"
+               stroke-linejoin="round">
+                <path d="M20 27 L32 42 L50 20 L68 42 L80 27
+                         L70 70 L30 70 Z"/>
+                <path d="M27 74 L73 74 L78 85 L22 85 Z"/>
+                <path d="M19 88 L81 88 L83 94 L17 94 Z"/>
+            </g>
+            <circle cx="20" cy="24" r="4" fill="#fff" stroke="#222" stroke-width="3"/>
+            <circle cx="50" cy="17" r="4" fill="#fff" stroke="#222" stroke-width="3"/>
+            <circle cx="80" cy="24" r="4" fill="#fff" stroke="#222" stroke-width="3"/>
+        </svg>
+    `,
+
+    wK: `
+        <svg class="piece" viewBox="0 0 100 100">
+            <g fill="#fff" stroke="#222" stroke-width="3"
+               stroke-linejoin="round">
+                <path d="M44 15 L44 28 L35 28 L35 35
+                         L65 35 L65 28 L56 28 L56 15 Z"/>
+                <path d="M34 40
+                         C28 48 32 59 39 64
+                         L30 76
+                         L70 76
+                         L61 64
+                         C68 59 72 48 66 40 Z"/>
+                <path d="M25 80 L75 80 L80 89 L20 89 Z"/>
+                <path d="M18 91 L82 91 L84 95 L16 95 Z"/>
+            </g>
+        </svg>
+    `,
+
+    bP: `
+        <svg class="piece" viewBox="0 0 100 100">
+            <g fill="#222" stroke="#eee" stroke-width="3">
+                <circle cx="50" cy="30" r="15"/>
+                <path d="M38 45 L62 45 L68 65 L78 78 L22 78 L32 65 Z"/>
+                <path d="M20 82 L80 82 L84 90 L16 90 Z"/>
+            </g>
+        </svg>
+    `,
+
+    bN: `
+        <svg class="piece" viewBox="0 0 100 100">
+            <g fill="#222" stroke="#eee" stroke-width="3"
+               stroke-linejoin="round">
+                <path d="M25 83
+                         L30 65
+                         C20 48 25 25 48 18
+                         L62 28
+                         L72 18
+                         L78 34
+                         C69 39 66 47 70 56
+                         L80 83 Z"/>
+                <path d="M20 86 L82 86 L84 92 L16 92 Z"/>
+            </g>
+            <circle cx="57" cy="34" r="3" fill="#eee"/>
+        </svg>
+    `,
+
+    bB: `
+        <svg class="piece" viewBox="0 0 100 100">
+            <g fill="#222" stroke="#eee" stroke-width="3"
+               stroke-linejoin="round">
+                <path d="M50 14
+                         C38 25 31 36 38 48
+                         C42 55 35 65 29 73
+                         L71 73
+                         C65 65 58 55 62 48
+                         C69 36 62 25 50 14 Z"/>
+                <path d="M25 78 L75 78 L80 87 L20 87 Z"/>
+                <path d="M18 89 L82 89 L84 94 L16 94 Z"/>
+            </g>
+            <path d="M43 27 L57 43" stroke="#eee" stroke-width="4"/>
+        </svg>
+    `,
+
+    bR: `
+        <svg class="piece" viewBox="0 0 100 100">
+            <g fill="#222" stroke="#eee" stroke-width="3"
+               stroke-linejoin="round">
+                <path d="M25 18 L25 31 L31 31 L31 70 L25 79
+                         L75 79 L69 70 L69 31 L75 31 L75 18
+                         L64 18 L64 25 L55 25 L55 18
+                         L45 18 L45 25 L36 25 L36 18 Z"/>
+                <path d="M20 82 L80 82 L83 91 L17 91 Z"/>
+            </g>
+        </svg>
+    `,
+
+    bQ: `
+        <svg class="piece" viewBox="0 0 100 100">
+            <g fill="#222" stroke="#eee" stroke-width="3"
+               stroke-linejoin="round">
+                <path d="M20 27 L32 42 L50 20 L68 42 L80 27
+                         L70 70 L30 70 Z"/>
+                <path d="M27 74 L73 74 L78 85 L22 85 Z"/>
+                <path d="M19 88 L81 88 L83 94 L17 94 Z"/>
+            </g>
+            <circle cx="20" cy="24" r="4" fill="#222" stroke="#eee" stroke-width="3"/>
+            <circle cx="50" cy="17" r="4" fill="#222" stroke="#eee" stroke-width="3"/>
+            <circle cx="80" cy="24" r="4" fill="#222" stroke="#eee" stroke-width="3"/>
+        </svg>
+    `,
+
+    bK: `
+        <svg class="piece" viewBox="0 0 100 100">
+            <g fill="#222" stroke="#eee" stroke-width="3"
+               stroke-linejoin="round">
+                <path d="M44 15 L44 28 L35 28 L35 35
+                         L65 35 L65 28 L56 28 L56 15 Z"/>
+                <path d="M34 40
+                         C28 48 32 59 39 64
+                         L30 76
+                         L70 76
+                         L61 64
+                         C68 59 72 48 66 40 Z"/>
+                <path d="M25 80 L75 80 L80 89 L20 89 Z"/>
+                <path d="M18 91 L82 91 L84 95 L16 95 Z"/>
+            </g>
+        </svg>
+    `
+};
+
+
+/* =========================================================
+   INITIAL POSITION
+========================================================= */
 
 const startingPosition = {
 
-    a8:"♜", b8:"♞", c8:"♝", d8:"♛",
-    e8:"♚", f8:"♝", g8:"♞", h8:"♜",
+    a8: "bR",
+    b8: "bN",
+    c8: "bB",
+    d8: "bQ",
+    e8: "bK",
+    f8: "bB",
+    g8: "bN",
+    h8: "bR",
 
-    a7:"♟", b7:"♟", c7:"♟", d7:"♟",
-    e7:"♟", f7:"♟", g7:"♟", h7:"♟",
+    a7: "bP",
+    b7: "bP",
+    c7: "bP",
+    d7: "bP",
+    e7: "bP",
+    f7: "bP",
+    g7: "bP",
+    h7: "bP",
 
-    a2:"♙", b2:"♙", c2:"♙", d2:"♙",
-    e2:"♙", f2:"♙", g2:"♙", h2:"♙",
+    a2: "wP",
+    b2: "wP",
+    c2: "wP",
+    d2: "wP",
+    e2: "wP",
+    f2: "wP",
+    g2: "wP",
+    h2: "wP",
 
-    a1:"♖", b1:"♘", c1:"♗", d1:"♕",
-    e1:"♔", f1:"♗", g1:"♘", h1:"♖"
+    a1: "wR",
+    b1: "wN",
+    c1: "wB",
+    d1: "wQ",
+    e1: "wK",
+    f1: "wB",
+    g1: "wN",
+    h1: "wR"
 };
 
 let pieces = {};
 let selectedSquare = null;
+let lessonStep = 0;
+let inputLocked = false;
 
 
-/* =========================
+/* =========================================================
    LESSON DATA
-========================= */
+========================================================= */
 
 const lessonSteps = [
 
@@ -496,13 +854,18 @@ const lessonSteps = [
 
         text:
             "The Scotch Gambit begins with 1. e4. " +
-            "This immediately fights for the center and opens lines " +
-            "for your pieces.",
+            "This immediately fights for the center and opens " +
+            "the diagonal for your bishop.",
 
         prompt: "First, play e4.",
 
         from: "e2",
-        to: "e4"
+        to: "e4",
+
+        opponent: {
+            from: "e7",
+            to: "e5"
+        }
     },
 
     {
@@ -516,30 +879,39 @@ const lessonSteps = [
         prompt: "Now play Nf3.",
 
         from: "g1",
-        to: "f3"
+        to: "f3",
+
+        opponent: {
+            from: "b8",
+            to: "c6"
+        }
     },
 
     {
         title: "Fight for the center",
 
         text:
-            "Your opponent played Nc6. " +
-            "Now play d4. This is the Scotch Game, " +
-            "challenging Black's central pawn immediately.",
+            "Your opponent played Nc6. Now play d4. " +
+            "This is the Scotch Game, challenging Black's " +
+            "central pawn immediately.",
 
         prompt: "Play d4.",
 
         from: "d2",
-        to: "d4"
+        to: "d4",
+
+        opponent: {
+            from: "e5",
+            to: "d4"
+        }
     },
 
     {
         title: "The gambit",
 
         text:
-            "Black took the pawn with exd4. " +
-            "Instead of immediately recapturing, play Bc4. " +
-            "This is the Scotch Gambit.",
+            "Black took the pawn with exd4. Instead of immediately " +
+            "recapturing, play Bc4. This is the Scotch Gambit.",
 
         prompt: "Play Bc4.",
 
@@ -549,18 +921,18 @@ const lessonSteps = [
 
 ];
 
-let lessonStep = 0;
 
-
-/* =========================
-   RENDER BOARD
-========================= */
+/* =========================================================
+   BOARD RENDERING
+========================================================= */
 
 function renderBoard() {
 
-    const board = document.getElementById("board");
+    const board =
+        document.getElementById("board");
 
     board.innerHTML = "";
+
 
     for (let rank = 8; rank >= 1; rank--) {
 
@@ -572,6 +944,7 @@ function renderBoard() {
             const squareName =
                 file + rank;
 
+
             const square =
                 document.createElement("div");
 
@@ -581,63 +954,95 @@ function renderBoard() {
                     ? "dark"
                     : "light");
 
+
             if (squareName === selectedSquare) {
                 square.classList.add("selected");
             }
 
-            square.textContent =
-                pieces[squareName] || "";
+
+            const piece =
+                pieces[squareName];
+
+
+            if (piece) {
+
+                square.innerHTML =
+                    pieceSVG[piece];
+
+            }
+
 
             square.addEventListener(
                 "click",
                 () => handleSquareClick(squareName)
             );
 
+
             board.appendChild(square);
+
         }
     }
 }
 
 
-/* =========================
-   MOVE INPUT
-========================= */
+/* =========================================================
+   USER MOVE
+========================================================= */
 
 function handleSquareClick(squareName) {
 
-    const step = lessonSteps[lessonStep];
+    if (inputLocked) return;
+
+    const step =
+        lessonSteps[lessonStep];
 
     if (!step) return;
 
 
+    /*
+     * Select a piece.
+     */
+
     if (!selectedSquare) {
 
-        if (pieces[squareName]) {
+        if (
+            pieces[squareName] &&
+            pieces[squareName].startsWith("w")
+        ) {
 
             selectedSquare = squareName;
-            renderBoard();
 
+            renderBoard();
         }
 
         return;
     }
 
 
+    /*
+     * Deselect.
+     */
+
     if (squareName === selectedSquare) {
 
         selectedSquare = null;
+
         renderBoard();
 
         return;
     }
 
 
+    /*
+     * Correct move.
+     */
+
     if (
         selectedSquare === step.from &&
         squareName === step.to
     ) {
 
-        makeLessonMove(
+        makeMove(
             selectedSquare,
             squareName
         );
@@ -646,61 +1051,74 @@ function handleSquareClick(squareName) {
 
         renderBoard();
 
+        inputLocked = true;
+
         document.getElementById("feedback").textContent =
             "Correct!";
 
-        document
-            .getElementById("nextButton")
-            .classList.remove("hidden");
 
-    } else {
+        /*
+         * Automatically play the opponent's move.
+         */
 
-        document.getElementById("feedback").textContent =
-            "That's not the move we're looking for. Try again.";
+        setTimeout(() => {
 
-        selectedSquare = null;
-        renderBoard();
+            if (step.opponent) {
+
+                makeMove(
+                    step.opponent.from,
+                    step.opponent.to
+                );
+
+                renderBoard();
+
+            }
+
+
+            lessonStep++;
+
+            updateLesson();
+
+            inputLocked = false;
+
+        }, 550);
+
+
+        return;
     }
+
+
+    /*
+     * Wrong move.
+     */
+
+    document.getElementById("feedback").textContent =
+        "That's not the move we're looking for. Try again.";
+
+    selectedSquare = null;
+
+    renderBoard();
 }
 
 
-/* =========================
-   SCRIPTED OPPONENT MOVES
-========================= */
+/* =========================================================
+   MAKE MOVE
+========================================================= */
 
-function makeLessonMove(from, to) {
+function makeMove(from, to) {
+
+    if (!pieces[from]) return;
 
     pieces[to] = pieces[from];
+
     delete pieces[from];
-
-
-    if (lessonStep === 0) {
-
-        pieces["e5"] = pieces["e7"];
-        delete pieces["e7"];
-
-    }
-
-    else if (lessonStep === 1) {
-
-        pieces["c6"] = pieces["b8"];
-        delete pieces["b8"];
-
-    }
-
-    else if (lessonStep === 2) {
-
-        pieces["d4"] = pieces["e5"];
-        delete pieces["e5"];
-
-    }
 
 }
 
 
-/* =========================
+/* =========================================================
    LESSON UI
-========================= */
+========================================================= */
 
 function updateLesson() {
 
@@ -716,12 +1134,13 @@ function updateLesson() {
     const feedback =
         document.getElementById("feedback");
 
-    const next =
-        document.getElementById("nextButton");
-
     const progress =
         document.getElementById("progressBar");
 
+
+    /*
+     * Course complete.
+     */
 
     if (lessonStep >= lessonSteps.length) {
 
@@ -734,13 +1153,12 @@ function updateLesson() {
             "key ideas, and tactical motifs.";
 
         prompt.textContent =
-            "Lesson complete — more variations coming next.";
+            "Lesson complete.";
 
         feedback.textContent = "";
 
-        next.classList.add("hidden");
-
-        progress.style.width = "100%";
+        progress.style.width =
+            "100%";
 
         return;
     }
@@ -748,6 +1166,7 @@ function updateLesson() {
 
     const step =
         lessonSteps[lessonStep];
+
 
     title.textContent =
         step.title;
@@ -760,26 +1179,18 @@ function updateLesson() {
 
     feedback.textContent = "";
 
-    next.classList.add("hidden");
-
     progress.style.width =
-        (lessonStep / lessonSteps.length * 100) + "%";
+        (
+            lessonStep /
+            lessonSteps.length *
+            100
+        ) + "%";
 }
 
 
-/* =========================
-   BUTTONS
-========================= */
-
-document
-    .getElementById("nextButton")
-    .addEventListener("click", () => {
-
-        lessonStep++;
-
-        updateLesson();
-    });
-
+/* =========================================================
+   HINT
+========================================================= */
 
 document
     .getElementById("hintButton")
@@ -799,6 +1210,10 @@ document
     });
 
 
+/* =========================================================
+   EXPLANATIONS
+========================================================= */
+
 document
     .getElementById("explainButton")
     .addEventListener("click", () => {
@@ -815,14 +1230,18 @@ document
 
         ];
 
-        document.getElementById("feedback").textContent =
-            explanations[lessonStep] || "";
+        if (explanations[lessonStep]) {
+
+            document.getElementById("feedback").textContent =
+                explanations[lessonStep];
+
+        }
     });
 
 
-/* =========================
+/* =========================================================
    RESET
-========================= */
+========================================================= */
 
 function resetLesson() {
 
@@ -832,13 +1251,17 @@ function resetLesson() {
 
     selectedSquare = null;
     lessonStep = 0;
+    inputLocked = false;
 
     updateLesson();
     renderBoard();
 }
 
 
-/* Start */
+/* =========================================================
+   START
+========================================================= */
+
 resetLesson();
 
 </script>
