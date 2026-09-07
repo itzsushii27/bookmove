@@ -177,247 +177,552 @@ a1:"wR",b1:"wN",c1:"wB",d1:"wQ",e1:"wK",f1:"wB",g1:"wN",h1:"wR"
 
 const OPENINGS={
 
-{
+const OPENINGS = {
+  // ==========================================
+  // BLACK OPENINGS
+  // ==========================================
+
+  "sicilian-defense": {
+    "name": "Sicilian Defense",
+    "color": "black",
+    "difficulty": "Advanced",
+    "eco": "B90",
+    "description": "The most dynamic and popular response to 1. e4. Black creates an asymmetrical center by exchanging a flank c-pawn for White's central d-pawn.",
+    "introSteps": [
+      {
+        "title": "Fight for the d4 square",
+        "text": "White plays 1. e4. Respond with 1...c5 to claim space on the queenside and control d4.",
+        "prompt": "Play c5.",
+        "from": "c7",
+        "to": "c5",
+        "opponent": { "from": "e2", "to": "e4" },
+        "explanation": "c5 prevents White from establishing an uncontested two-pawn center with e4 and d4."
+      },
+      {
+        "title": "Prepare central exchanges",
+        "text": "White plays 2. Nf3. Develop your knight to d6 or prepare the pawn structure with 2...d6.",
+        "prompt": "Play d6.",
+        "from": "d7",
+        "to": "d6",
+        "opponent": { "from": "g1", "to": "f3" },
+        "explanation": "2...d6 controls e5 and prepares to develop the g8-knight to f6 without blocking the c8-bishop."
+      },
+      {
+        "title": "Trade in the center",
+        "text": "White strikes with 3. d4. Capture the pawn on d4.",
+        "prompt": "Play cxd4.",
+        "from": "c5",
+        "to": "d4",
+        "opponent": { "from": "d2", "to": "d4" },
+        "explanation": "Trading the c-pawn for White's d-pawn gives Black a central pawn advantage in the long run."
+      },
+      {
+        "title": "Develop with pressure",
+        "text": "White recaptures 4. Nxd4. Develop your knight to f6 to attack e4.",
+        "prompt": "Play Nf6.",
+        "from": "g8",
+        "to": "f6",
+        "opponent": { "from": "f3", "to": "d4" },
+        "explanation": "Nf6 develops with a threat against White's unsupported e4-pawn."
+      }
+    ],
+    "variations": {
+      "najdorf": {
+        "name": "Najdorf Variation (5...a6)",
+        "description": "The sharpest and most flexible line in the Sicilian Defense, favored by Bobby Fischer and Garry Kasparov.",
+        "steps": [
+          {
+            "title": "The flexible Najdorf move",
+            "text": "White defends with 5. Nc3. Play 5...a6 to prepare b5 and stop White pieces from using b5.",
+            "prompt": "Play a6.",
+            "from": "a7",
+            "to": "a6",
+            "opponent": { "from": "b1", "to": "c3" },
+            "explanation": "a6 keeps White's knights and light-squared bishop out of the b5 square, preparing a queenside pawn expansion."
+          },
+          {
+            "title": "Prepare kingside development",
+            "text": "White plays 6. Bg5. Solidify the center with 6...e6.",
+            "prompt": "Play e6.",
+            "from": "e7",
+            "to": "e6",
+            "opponent": { "from": "c1", "to": "g5" },
+            "explanation": "e6 prevents White from invading on d5 and prepares dark-squared bishop development."
+          }
+        ],
+        "summary": "The Najdorf offers rich tactical counterplay, giving Black long-term chances to win from an asymmetrical structure."
+      }
+    }
+  },
+
+  "french-defense": {
+    "name": "French Defense",
+    "color": "black",
+    "difficulty": "Moderate",
+    "eco": "C00",
+    "description": "A resilient, counter-attacking defense where Black allows White a strong center in order to attack it immediately with ...d5 and ...c5.",
+    "introSteps": [
+      {
+        "title": "Prepare the central strike",
+        "text": "White opens 1. e4. Respond with 1...e6.",
+        "prompt": "Play e6.",
+        "from": "e7",
+        "to": "e6",
+        "opponent": { "from": "e2", "to": "e4" },
+        "explanation": "1...e6 lays the foundation for an immediate 2...d5 push."
+      },
+      {
+        "title": "Challenge the e4 pawn",
+        "text": "White takes the center with 2. d4. Strike back with 2...d5.",
+        "prompt": "Play d5.",
+        "from": "d7",
+        "to": "d5",
+        "opponent": { "from": "d2", "to": "d4" },
+        "explanation": "d5 attacks e4 and challenges White's space advantage directly."
+      }
+    ],
+    "variations": {
+      "winawer": {
+        "name": "Winawer Variation (3. Nc3 Bb4)",
+        "description": "A sharp, uncompromising response that pins White's knight to attack the e4-pawn.",
+        "steps": [
+          {
+            "title": "Pin the knight",
+            "text": "White develops with 3. Nc3. Pin the knight with 3...Bb4.",
+            "prompt": "Play Bb4.",
+            "from": "f8",
+            "to": "b4",
+            "opponent": { "from": "b1", "to": "c3" },
+            "explanation": "Bb4 places maximum pressure on the c3-knight guarding White's e4 pawn."
+          },
+          {
+            "title": "Counter the center push",
+            "text": "White advances 4. e5. Undermine d4 with 4...c5!",
+            "prompt": "Play c5.",
+            "from": "c7",
+            "to": "c5",
+            "opponent": { "from": "e4", "to": "e5" },
+            "explanation": "c5 strikes at the base of White's pawn chain on d4."
+          }
+        ],
+        "summary": "The Winawer creates sharp positional imbalances where Black trades dark-square control for powerful central pressure."
+      }
+    }
+  },
+
+  "kings-indian": {
+    "name": "King's Indian Defense",
+    "color": "black",
+    "difficulty": "Advanced",
+    "eco": "E60",
+    "description": "A hypermodern defense against 1. d4. Black allows White to build a large center, then launches a aggressive counterattack on the kingside.",
+    "introSteps": [
+      {
+        "title": "Control e4 indirectly",
+        "text": "White opens 1. d4. Develop your knight with 1...Nf6.",
+        "prompt": "Play Nf6.",
+        "from": "g8",
+        "to": "f6",
+        "opponent": { "from": "d2", "to": "d4" },
+        "explanation": "Nf6 prevents White from immediately playing 2. e4."
+      },
+      {
+        "title": "Fianchetto setup",
+        "text": "White plays 2. c4. Prepare to fianchetto your dark-squared bishop with 2...g6.",
+        "prompt": "Play g6.",
+        "from": "g7",
+        "to": "g6",
+        "opponent": { "from": "c2", "to": "c4" },
+        "explanation": "g6 paves the way for Bg7, targeting the long diagonal toward White's center."
+      },
+      {
+        "title": "Develop the dragon bishop",
+        "text": "White plays 3. Nc3. Complete the dark-squared bishop placement with 3...Bg7.",
+        "prompt": "Play Bg7.",
+        "from": "f8",
+        "to": "g7",
+        "opponent": { "from": "b1", "to": "c3" },
+        "explanation": "Bg7 controls the main h8-a1 diagonal."
+      },
+      {
+        "title": "Secure the king",
+        "text": "White establishes a massive center with 4. e4. Castle kingside with 4...O-O.",
+        "prompt": "Castle kingside with O-O.",
+        "from": "e8",
+        "to": "g8",
+        "opponent": { "from": "e2", "to": "e4" },
+        "special": "castle",
+        "explanation": "Castling puts the Black king into safety before striking the center."
+      }
+    ],
+    "variations": {
+      "mar_del_plata": {
+        "name": "Classical Counter (5...d6 & 6...e5)",
+        "description": "Black anchors the defense with d6 and launches an explosive e5 counter-break.",
+        "steps": [
+          {
+            "title": "Control e5 and c5",
+            "text": "White plays 5. Nf3. Control central squares with 5...d6.",
+            "prompt": "Play d6.",
+            "from": "d7",
+            "to": "d6",
+            "opponent": { "from": "g1", "to": "f3" },
+            "explanation": "d6 prepares the e5 break while stopping White's e5 expansion."
+          },
+          {
+            "title": "Strike the center",
+            "text": "White develops 6. Be2. Break open the center with 6...e5!",
+            "prompt": "Play e5.",
+            "from": "e7",
+            "to": "e5",
+            "opponent": { "from": "f1", "to": "e2" },
+            "explanation": "e5 challenges White's space advantage and forces a strategic decision."
+          }
+        ],
+        "summary": "The King's Indian leads to opposite-side pawn storms, where White attacks the queenside and Black hunts White's king."
+      }
+    }
+  },
+
+  "slav-defense": {
+    "name": "Slav Defense",
+    "color": "black",
+    "difficulty": "Moderate",
+    "eco": "D10",
+    "description": "One of Black's most reliable weapons against 1. d4. Black supports d5 with c6, keeping the c8-bishop's diagonal open.",
+    "introSteps": [
+      {
+        "title": "Match the center pawn",
+        "text": "White plays 1. d4. Claim equal central ground with 1...d5.",
+        "prompt": "Play d5.",
+        "from": "d7",
+        "to": "d5",
+        "opponent": { "from": "d2", "to": "d4" },
+        "explanation": "Standard Queen's Pawn reply."
+      },
+      {
+        "title": "Support with c6",
+        "text": "White offers the gambit with 2. c4. Support d5 with 2...c6.",
+        "prompt": "Play c6.",
+        "from": "c7",
+        "to": "c6",
+        "opponent": { "from": "c2", "to": "c4" },
+        "explanation": "2...c6 defends d5 without blocking the c8 light-squared bishop (unlike the 2...e6 QGD)."
+      }
+    ],
+    "variations": {
+      "main_line": {
+        "name": "Classical Slav Defense",
+        "description": "A rock-solid response focused on logical piece development.",
+        "steps": [
+          {
+            "title": "Develop toward the center",
+            "text": "White plays 3. Nf3. Develop your knight to f6.",
+            "prompt": "Play Nf6.",
+            "from": "g8",
+            "to": "f6",
+            "opponent": { "from": "g1", "to": "f3" },
+            "explanation": "Nf6 develops Black's king's knight while maintaining control over e4."
+          },
+          {
+            "title": "Accept material temporarily",
+            "text": "White plays 4. Nc3. Take on c4 with 4...dxc4.",
+            "prompt": "Play dxc4.",
+            "from": "d5",
+            "to": "c4",
+            "opponent": { "from": "b1", "to": "c3" },
+            "explanation": "4...dxc4 frees the c8-f5 diagonal for Black's bishop before White plays e3."
+          }
+        ],
+        "summary": "The Slav remains a dominant top-level choice due to its balance of structural safety and clear piece development."
+      }
+    }
+  },
+
+  // ==========================================
+  // WHITE OPENINGS
+  // ==========================================
+
+  "ruy-lopez": {
+    "name": "Ruy Lopez (Spanish Opening)",
+    "color": "white",
+    "difficulty": "Advanced",
+    "eco": "C60",
+    "description": "One of the oldest, most respected, and deeply analyzed openings in chess. White puts immediate structural pressure on Black's center by pinning or attacking the defender of e5.",
+    "introSteps": [
+      {
+        "title": "Control the center",
+        "text": "Start with 1. e4 to claim central territory and open lines for your queen and f1-bishop.",
+        "prompt": "Play e4.",
+        "from": "e2",
+        "to": "e4",
+        "explanation": "e4 controls key central squares like d5."
+      },
+      {
+        "title": "Develop with pressure",
+        "text": "Black plays 1...e5. Develop your knight to f3 to attack the e5-pawn.",
+        "prompt": "Play Nf3.",
+        "from": "g1",
+        "to": "f3",
+        "opponent": { "from": "e7", "to": "e5" },
+        "explanation": "Nf3 develops toward the center while threatening Black's e5-pawn."
+      },
+      {
+        "title": "The Spanish Bishop",
+        "text": "Black defends with 2...Nc6. Move your bishop to b5 to define the Ruy Lopez.",
+        "prompt": "Play Bb5.",
+        "from": "f1",
+        "to": "b5",
+        "opponent": { "from": "b8", "to": "c6" },
+        "explanation": "Bb5 indirectly pressures e5 by attacking the knight that guards it."
+      }
+    ],
+    "variations": {
+      "morphy_defense": {
+        "name": "Morphy Defense (3...a6 Main Line)",
+        "description": "The most classical defense: Black forces White's bishop to declare its intentions.",
+        "steps": [
+          {
+            "title": "Maintain the bishop tension",
+            "text": "Black plays 3...a6. Retreat the bishop to a4 to maintain the pin/pressure on c6.",
+            "prompt": "Play Ba4.",
+            "from": "b5",
+            "to": "a4",
+            "opponent": { "from": "a7", "to": "a6" },
+            "explanation": "Ba4 preserves the light-squared bishop along the diagonal while keeping pressure on Black."
+          },
+          {
+            "title": "Castle into safety",
+            "text": "Black develops 4...Nf6. Castle kingside to secure your king.",
+            "prompt": "Castle kingside with O-O.",
+            "from": "e1",
+            "to": "g1",
+            "opponent": { "from": "g8", "to": "f6" },
+            "special": "castle",
+            "explanation": "Castling puts White's king into safety and enables Re1 support for e4."
+          }
+        ],
+        "summary": "The Morphy Defense is the cornerstone of modern Ruy Lopez theory, leading to rich, strategic middlegames."
+      }
+    }
+  },
+
+  "italian-game": {
+    "name": "Italian Game (Giuoco Piano)",
+    "color": "white",
+    "difficulty": "Simple",
+    "eco": "C50",
+    "description": "A classical open game focusing on rapid piece deployment, early king safety, and direct control over the vulnerable f7-square.",
+    "introSteps": [
+      {
+        "title": "Claim central space",
+        "text": "Open with 1. e4.",
+        "prompt": "Play e4.",
+        "from": "e2",
+        "to": "e4",
+        "explanation": "Standard king's pawn start."
+      },
+      {
+        "title": "Develop and attack",
+        "text": "Black replies 1...e5. Develop your knight to f3.",
+        "prompt": "Play Nf3.",
+        "from": "g1",
+        "to": "f3",
+        "opponent": { "from": "e7", "to": "e5" },
+        "explanation": "Attacks e5 and prepares kingside castling."
+      },
+      {
+        "title": "Target f7",
+        "text": "Black guards e5 with 2...Nc6. Move your bishop to c4.",
+        "prompt": "Play Bc4.",
+        "from": "f1",
+        "to": "c4",
+        "opponent": { "from": "b8", "to": "c6" },
+        "explanation": "Bc4 takes control of the a2-g8 diagonal and targets f7, the weakest point in Black's camp."
+      }
+    ],
+    "variations": {
+      "giuoco_pianissimo": {
+        "name": "Giuoco Pianissimo (Quiet Game)",
+        "description": "A solid, positional approach building a strong pawn structure with d3 and c3.",
+        "steps": [
+          {
+            "title": "Solidify the center",
+            "text": "Black plays 3...Bc5. Support e4 by playing 4. d3.",
+            "prompt": "Play d3.",
+            "from": "d2",
+            "to": "d3",
+            "opponent": { "from": "f8", "to": "c5" },
+            "explanation": "d3 firmly defends e4 and frees the c1-bishop for deployment."
+          }
+        ],
+        "summary": "The Quiet Italian builds positional momentum, allowing White to maneuver pieces safely."
+      }
+    }
+  },
+
+  "queens-gambit": {
+    "name": "Queen's Gambit",
+    "color": "white",
+    "difficulty": "Moderate",
+    "eco": "D06",
+    "description": "The premier Queen's Pawn opening. White offers a flank c-pawn to undermine Black's center pawn on d5 and secure long-term spatial control.",
+    "introSteps": [
+      {
+        "title": "The Queen's Pawn start",
+        "text": "Begin with 1. d4 to claim central space.",
+        "prompt": "Play d4.",
+        "from": "d2",
+        "to": "d4",
+        "explanation": "d4 controls e5 and c5."
+      },
+      {
+        "title": "The Gambit Offer",
+        "text": "Black plays 1...d5. Offer the c-pawn with 2. c4!",
+        "prompt": "Play c4.",
+        "from": "c2",
+        "to": "c4",
+        "opponent": { "from": "d7", "to": "d5" },
+        "explanation": "c4 challenges Black's center."
+      }
+    ],
+    "variations": {
+      "qgd": {
+        "name": "Queen's Gambit Declined (2...e6)",
+        "description": "Black holds the center firmly with e6.",
+        "steps": [
+          {
+            "title": "Develop the Knight",
+            "text": "Black defends d5 with 2...e6. Develop your knight to c3.",
+            "prompt": "Play Nc3.",
+            "from": "b1",
+            "to": "c3",
+            "opponent": { "from": "e7", "to": "e6" },
+            "explanation": "Nc3 adds pressure to d5."
+          }
+        ],
+        "summary": "A fundamental opening used at every level of master play."
+      }
+    }
+  },
+
+  "ponziani": {
+    "name": "Ponziani Opening",
+    "color": "white",
+    "difficulty": "Moderate",
+    "eco": "C44",
+    "description": "An underrated classical opening where White plays 3. c3 to support a massive pawn push to d4 on move 4.",
+    "introSteps": [
+      {
+        "title": "Open with e4",
+        "text": "Claim the center with 1. e4.",
+        "prompt": "Play e4.",
+        "from": "e2",
+        "to": "e4",
+        "explanation": "Standard central opening."
+      },
+      {
+        "title": "Develop the Knight",
+        "text": "Black answers 1...e5. Develop your knight to f3.",
+        "prompt": "Play Nf3.",
+        "from": "g1",
+        "to": "f3",
+        "opponent": { "from": "e7", "to": "e5" },
+        "explanation": "Pressures e5."
+      },
+      {
+        "title": "Prepare the d4 center",
+        "text": "Black develops 2...Nc6. Play 3. c3!",
+        "prompt": "Play c3.",
+        "from": "c2",
+        "to": "c3",
+        "opponent": { "from": "b8", "to": "c6" },
+        "explanation": "3. c3 prepares 4. d4 on the next turn."
+      }
+    ],
+    "variations": {
+      "main_counter": {
+        "name": "Main Counter (3...Nf6 4. d4)",
+        "description": "White carries out the planned d4 strike.",
+        "steps": [
+          {
+            "title": "Execute d4",
+            "text": "Black plays 3...Nf6. Push 4. d4!",
+            "prompt": "Play d4.",
+            "from": "d2",
+            "to": "d4",
+            "opponent": { "from": "g8", "to": "f6" },
+            "explanation": "d4 seizes immediate central initiative."
+          }
+        ],
+        "summary": "White achieves the intended pawn center, leading to energetic tactical play."
+      }
+    }
+  },
+
   "scotch-gambit": {
     "name": "Scotch Gambit",
+    "color": "white",
     "difficulty": "Advanced",
     "eco": "C44",
     "description": "An aggressive opening where White sacrifices the d4-pawn to secure rapid piece development, open central lines, and early attacking chances against f7.",
-    
     "introSteps": [
       {
         "title": "Start with the center",
-        "text": "The Scotch Gambit begins with 1. e4. You immediately claim central space while opening diagonals for your queen and f1-bishop.",
+        "text": "The Scotch Gambit begins with 1. e4.",
         "prompt": "First, play e4.",
         "from": "e2",
         "to": "e4",
-        "explanation": "e4 controls d5 and f5, opens the f1-bishop, and gives White an active start."
+        "explanation": "e4 controls d5 and f5."
       },
       {
         "title": "Develop with tempo",
-        "text": "Black answered with 1...e5. Now develop your king's knight with Nf3. Besides developing, the knight attacks the e5-pawn.",
+        "text": "Black answered with 1...e5. Develop your knight with Nf3.",
         "prompt": "Now play Nf3.",
         "from": "g1",
         "to": "f3",
         "opponent": { "from": "e7", "to": "e5" },
-        "explanation": "Nf3 develops toward the center and immediately puts pressure on e5."
+        "explanation": "Nf3 attacks e5."
       },
       {
         "title": "Fight for the center",
-        "text": "Black played 2...Nc6. Now play d4. This is the Scotch Game entry: White challenges Black's central pawn immediately.",
+        "text": "Black played 2...Nc6. Now play d4.",
         "prompt": "Play d4.",
         "from": "d2",
         "to": "d4",
         "opponent": { "from": "b8", "to": "c6" },
-        "explanation": "d4 forces Black to make a decision about the e5-pawn and opens the game before Black can comfortably develop."
+        "explanation": "d4 challenges Black's center immediately."
       },
       {
         "title": "The gambit offer",
-        "text": "Black captured with 3...exd4. Instead of automatically recapturing with 4. Nxd4, play 4. Bc4.",
+        "text": "Black captured with 3...exd4. Play 4. Bc4.",
         "prompt": "Play Bc4.",
         "from": "f1",
         "to": "c4",
         "opponent": { "from": "e5", "to": "d4" },
-        "explanation": "Bc4 is the defining move of the Scotch Gambit. White leaves the d4-pawn in exchange for rapid piece deployment, castling readiness, and pressure on f7."
+        "explanation": "Bc4 leaves d4 exposed in exchange for attacking development."
       }
     ],
-
     "variations": {
-
       "dubois": {
-        "name": "Dubois-Réti Defense (4...Nf6 Main Line)",
-        "description": "Black counterattacks White's e4-pawn with ...Nf6, challenging White's center immediately.",
+        "name": "Dubois-Réti Defense (4...Nf6)",
+        "description": "Black counterattacks White's e4-pawn.",
         "steps": [
           {
             "title": "Advance and attack",
-            "text": "Black plays 4...Nf6. Respond by advancing your e-pawn to e5 to kick the knight away.",
+            "text": "Black plays 4...Nf6. Advance to e5.",
             "prompt": "Play e5.",
             "from": "e4",
             "to": "e5",
             "opponent": { "from": "g8", "to": "f6" },
-            "explanation": "e5 gains central space and disrupts Black's knight. Black must react precisely with ...d5."
-          },
-          {
-            "title": "The central counter-strike",
-            "text": "Black counters in the center with 5...d5! Pin the c6-knight with Bb5.",
-            "prompt": "Play Bb5.",
-            "from": "c4",
-            "to": "b5",
-            "opponent": { "from": "d7", "to": "d5" },
-            "explanation": "Bb5 maintains pressure while saving the bishop. Black usually jumps the knight to e4."
-          },
-          {
-            "title": "Recapture on d4",
-            "text": "Black leaps to e4 with 6...Ne4. Now you can safely capture d4 with your knight.",
-            "prompt": "Play Nxd4.",
-            "from": "f3",
-            "to": "d4",
-            "opponent": { "from": "f6", "to": "e4" },
-            "explanation": "Nxd4 restores material balance while keeping dynamic pressure against Black's pinned setup on c6."
+            "explanation": "e5 gains space and displaces the knight."
           }
         ],
-        "summary": "The main line with 4...Nf6 leads to balanced, dynamic play where White uses space and Black relies on active pieces."
-      },
-
-      "classical": {
-        "name": "Classical / Giuoco Piano Line (4...Bc5 5. c3 Nf6)",
-        "description": "Black develops the dark-squared bishop to c5. White offers c3 to build a pawn center.",
-        "steps": [
-          {
-            "title": "Challenge the pawn chain",
-            "text": "Black chooses 4...Bc5. Offer a second pawn with 5. c3.",
-            "prompt": "Play c3.",
-            "from": "c2",
-            "to": "c3",
-            "opponent": { "from": "f8", "to": "c5" },
-            "explanation": "c3 aims to rebuild full central control with d4 and c3 if Black declines or trades."
-          },
-          {
-            "title": "Counter-develop",
-            "text": "Black declines taking c3 and develops with 5...Nf6. Castle kingside immediately.",
-            "prompt": "Castle kingside with O-O.",
-            "from": "e1",
-            "to": "g1",
-            "opponent": { "from": "g8", "to": "f6" },
-            "special": "castle",
-            "explanation": "Castling secures your king while leaving Black's e4-pawn target vulnerable to Re1 ideas."
-          },
-          {
-            "title": "Recapture in the center",
-            "text": "Black takes 6...dxc3. Recapture with 7. Nxc3.",
-            "prompt": "Play Nxc3.",
-            "from": "b1",
-            "to": "c3",
-            "opponent": { "from": "d4", "to": "c3" },
-            "explanation": "Nxc3 completes a full gambit setup, giving White powerful initiative and open files."
-          }
-        ],
-        "summary": "A classic gambit formation where White trades pawns for superior development and open lines toward the kingside."
-      },
-
-      "haxo": {
-        "name": "Haxo Gambit (4...Bc5 5. c3 dxc3 6. Bxf7+)",
-        "description": "A sharp tactical line where White sacrifices the bishop on f7 to disrupt Black's king.",
-        "steps": [
-          {
-            "title": "Prepare the strike",
-            "text": "Black played 4...Bc5. Offer the c3 pawn.",
-            "prompt": "Play c3.",
-            "from": "c2",
-            "to": "c3",
-            "opponent": { "from": "f8", "to": "c5" },
-            "explanation": "c3 invites Black to grab more material, setting up a combination."
-          },
-          {
-            "title": "The bishop sacrifice",
-            "text": "Black grabbed on c3 with 5...dxc3. Strike with 6. Bxf7+!",
-            "prompt": "Play Bxf7+.",
-            "from": "c4",
-            "to": "f7",
-            "opponent": { "from": "d4", "to": "c3" },
-            "tactic": true,
-            "explanation": "Bxf7+ drags the king away from safety and strips away Black's castling rights."
-          },
-          {
-            "title": "The double attack",
-            "text": "Black accepts with 6...Kxf7. Launch the queen with 7. Qd5+.",
-            "prompt": "Play Qd5+.",
-            "from": "d1",
-            "to": "d5",
-            "opponent": { "from": "e8", "to": "f7" },
-            "tactic": true,
-            "explanation": "Qd5+ checks the king on f7 while simultaneously attacking the undefended c5-bishop."
-          },
-          {
-            "title": "Regain the piece",
-            "text": "Black moves the king back to e8 (or f8). Recapture the bishop with 8. Qxc5.",
-            "prompt": "Play Qxc5.",
-            "from": "d5",
-            "to": "c5",
-            "opponent": { "from": "f7", "to": "e8" },
-            "explanation": "White regains the sacrificed piece with an exposed opponent king and active control."
-          }
-        ],
-        "summary": "The Haxo Gambit sacrifices material for immediate king displacement and central queen activity."
-      },
-
-      "max_lange_transposition": {
-        "name": "Max Lange Attack Transposition",
-        "description": "If White castles early against 4...Bc5, the game can enter the razor-sharp Max Lange Attack.",
-        "steps": [
-          {
-            "title": "Castle early",
-            "text": "Black played 4...Bc5. Castle immediately instead of playing c3.",
-            "prompt": "Castle kingside with O-O.",
-            "from": "e1",
-            "to": "g1",
-            "opponent": { "from": "f8", "to": "c5" },
-            "special": "castle",
-            "explanation": "O-O puts the rook on e1 quickly to prepare central pawn breaks."
-          },
-          {
-            "title": "Push e5",
-            "text": "Black develops 5...Nf6. Strike with 6. e5!",
-            "prompt": "Play e5.",
-            "from": "e4",
-            "to": "e5",
-            "opponent": { "from": "g8", "to": "f6" },
-            "explanation": "6. e5 kicks off the wild tactics of the Max Lange Attack where both sides counterattack."
-          }
-        ],
-        "summary": "Leading to one of the oldest tactical attacks in chess history, requiring precise calculation from both players."
-      },
-
-      "h6": {
-        "name": "h6 Passive Defense",
-        "description": "Black plays ...h6 to stop Ng5 jumps, allowing White to build central momentum.",
-        "steps": [
-          {
-            "title": "Consolidate and castle",
-            "text": "Black plays 4...h6. Simply castle kingside.",
-            "prompt": "Castle kingside with O-O.",
-            "from": "e1",
-            "to": "g1",
-            "opponent": { "from": "h7", "to": "h6" },
-            "special": "castle",
-            "explanation": "Castling puts your king in safety while Black has wasted a tempo with ...h6."
-          },
-          {
-            "title": "Advance in the center",
-            "text": "Black plays 5...Nf6. Advance with 6. e5.",
-            "prompt": "Play e5.",
-            "from": "e4",
-            "to": "e5",
-            "opponent": { "from": "g8", "to": "f6" },
-            "explanation": "e5 takes space and forces Black's knight to find awkward squares."
-          }
-        ],
-        "summary": "Against passive moves like ...h6, White develops calmly and takes total central control."
-      },
-
-      "passive_d6": {
-        "name": "Passive Defense (4...d6)",
-        "description": "Black guards the center with ...d6, leading to a comfortable position for White.",
-        "steps": [
-          {
-            "title": "Recapture d4",
-            "text": "Black plays 4...d6. Recapture the pawn with 5. Nxd4.",
-            "prompt": "Play Nxd4.",
-            "from": "f3",
-            "to": "d4",
-            "opponent": { "from": "d7", "to": "d6" },
-            "explanation": "Since Black played a passive pawn move, recapturing d4 gives White a dominant spatial edge without any risk."
-          }
-        ],
-        "summary": "4...d6 is solid for Black, but gives up the initiative, allowing White an easy space advantage."
+        "summary": "Main line leading to dynamic, open tactical play."
       }
-
     }
   }
-}
-                     
-},
-
+};
 keyIdeas:[
 "Develop quickly instead of obsessing over material.",
 "Use checks and threats to make Black spend time defending.",
